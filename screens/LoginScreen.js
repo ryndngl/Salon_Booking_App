@@ -1,17 +1,6 @@
 // screens/LoginScreen.js
-import React, { useState, useEffect } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  ImageBackground,
-  KeyboardAvoidingView,
-  Platform,
-  Image,
-  ActivityIndicator,
+import { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert,ImageBackground, KeyboardAvoidingView, Platform, Image, ActivityIndicator,
 } from 'react-native';
 
 // Firebase imports
