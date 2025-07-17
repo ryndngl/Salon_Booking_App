@@ -5,9 +5,9 @@
 import * as WebBrowser from 'expo-web-browser';
 WebBrowser.maybeCompleteAuthSession();
 
-import React, { useState, useEffect, useRef } from "react";
+import  { useState, useEffect, useRef } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Animated, Dimensions, ImageBackground } from "react-native";
+import { StyleSheet, Animated, Dimensions, ImageBackground } from "react-native";
 
 // Firebase imports
 import { initializeApp } from "firebase/app";

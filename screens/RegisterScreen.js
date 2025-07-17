@@ -1,5 +1,5 @@
 // screens/RegisterScreen.js
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -41,9 +41,7 @@ export default function RegisterScreen({ navigation }) {
     try {
       // Attempt to register using Firebase
       const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
+        auth, email, password
       );
       const user = userCredential.user;
       Alert.alert("Success", "Account created successfully!");

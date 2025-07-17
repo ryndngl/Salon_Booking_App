@@ -1,67 +1,102 @@
 // screens/LoginScreen.js
 import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert,ImageBackground, KeyboardAvoidingView, Platform, Image, ActivityIndicator,
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Image, ActivityIndicator,
 } from 'react-native';
 
 // Firebase imports
 import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 
 // Expo Google Auth Session imports
-import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser'; 
 
-// Mahalaga: Tawagin ito sa pinaka-umpisa ng iyong App.js file
-// WebBrowser.maybeCompleteAuthSession();
+// Tandaan: Ang 'WebBrowser.maybeCompleteAuthSession();' ay dapat nasa pinaka-umpisa ng iyong App.js file.
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false); // State for overall loading indicator
-  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isSigningInWithGoogle, setIsSigningInWithGoogle] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Get the authentication service from the Firebase app
-  // NOTE: Mas maganda kung ang 'auth' object ay ipapasa mula sa App.js
-  // o i-export mula sa App.js at i-import dito, para isang beses lang ang initialization.
   const auth = getAuth();
 
-  // Google Sign-In configuration
-  // Ito ang iyong Web Client ID na ibinigay mo: 365428725051-5v4p9o87g503iopgqf93kqs9j1iivjc9.apps.googleusercontent.com
+  // Direktang ipapasa ang LITERAL na string ng tamang Expo proxy redirect URI.
+  // Ito ang URI na nakarehistro sa Google Cloud Console para sa iyong Web application client ID.
+  const expoRedirectUri = 'https://auth.expo.io/@ryandingle01/SalonBookingApp';
+
+  // Your Web Client ID from Google Cloud Console
+  const googleWebClientId = '365428725051-kmjh4jtck7n6kgs4etn8vvscj5228a56.apps.googleusercontent.com';
+
+  // We are no longer using Google.useAuthRequest directly for the prompt
+  // Instead, we will construct the Google OAuth URL manually and use WebBrowser.openAuthSessionAsync
+  // The 'request' and 'response' objects from Google.useAuthRequest are not directly used here for the prompt,
+  // but we keep the hook for consistency with Firebase credential handling if needed in future.
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: '365428725051-5v4p9o87g503iopgqf93kqs9j1iivjc9.apps.googleusercontent.com',
-    androidClientId: '', // Ilagay dito kung mayroon kang Android client ID
-    iosClientId: '',     // Ilagay dito kung mayroon kang iOS client ID
-    expoClientId: '365428725051-5v4p9o87g503iopgqf93kqs9j1iivjc9.apps.googleusercontent.com', // Kadalasan pareho sa webClientId
+    // ITO ANG INAYOS! Dapat tugma sa googleWebClientId sa taas.
+    webClientId: '365428725051-kmjh4jtck7n6kgs4etn8vvscj5228a56.apps.googleusercontent.com', 
+    androidClientId: '365428725051-3sss7nglu1bqmv121dl8hcjk561rnm7a.apps.googleusercontent.com',
+    iosClientId: '',
+    // ITO RIN ANG INAYOS! Dapat tugma sa googleWebClientId sa taas.
+    expoClientId: '365428725051-kmjh4jtck7n6kgs4etn8vvscj5228a56.apps.googleusercontent.com',
+    scopes: ['profile', 'email'],
+    redirectUri: expoRedirectUri, 
+    useProxy: true, 
   });
 
-  // useEffect hook para i-handle ang response mula sa Google authentication
   useEffect(() => {
+    console.log("DEBUG: useEffect - Google Auth Response Type:", response?.type);
+    console.log("DEBUG: useEffect - Full Response Object:", response); 
+
     if (response?.type === 'success') {
+      console.log("DEBUG: useEffect - Auth successful via Google.useAuthRequest response.");
       const { authentication } = response;
-      if (authentication?.accessToken) {
-        setLoading(true); // Simulan ang loading
-        const credential = GoogleAuthProvider.credential(authentication.accessToken);
+      if (authentication?.accessToken || authentication?.idToken) { 
+        const credential = GoogleAuthProvider.credential(authentication.idToken || authentication.accessToken); 
         signInWithCredential(auth, credential)
           .then(() => {
-            console.log('Matagumpay na naka-log in gamit ang Google!');
-            // Ang onAuthStateChanged listener sa App.js ang magre-redirect sa Home.
-            // Kung gusto mo ng instant redirect, maaari mong gamitin:
-            // navigation.replace('Home');
+            console.log('DEBUG: useEffect - Matagumpay na naka-log in gamit ang Google (Firebase).');
+            navigation.replace('Home'); 
           })
           .catch((error) => {
-            console.error("Error sa Google sign-in with Firebase:", error);
-            Alert.alert("Error sa Google Sign-In", error.message);
+            console.error("DEBUG: useEffect - Firebase signInWithCredential error:", error);
+            let userFriendlyMessage = 'May problema sa Google Sign-In. Subukang muli.';
+            switch (error.code) {
+              case 'auth/invalid-credential':
+                userFriendlyMessage = 'Invalid Google account credentials. Please try again.';
+                break;
+              case 'auth/account-exists-with-different-credential':
+                userFriendlyMessage = 'Mayroon ka nang account gamit ang ibang paraan ng pag-sign in. Subukang mag-log in gamit ang email/password o ibang provider.';
+                break;
+              case 'auth/cancelled-popup-request':
+                userFriendlyMessage = 'Kinansela ang Google Sign-In. Subukang muli.';
+                break;
+              default:
+                userFriendlyMessage = 'Google Sign-In failed. ' + error.message;
+            }
+            Alert.alert("Error sa Google Sign-In", userFriendlyMessage);
           })
           .finally(() => {
-            setLoading(false); // Tapusin ang loading
+            setIsSigningInWithGoogle(false);
           });
+      } else {
+        Alert.alert("Google Sign-In", "Authentication successful but no access token received.");
+        setIsSigningInWithGoogle(false);
       }
     } else if (response?.type === 'cancel') {
+      console.log("DEBUG: useEffect - Google Sign-In cancelled.");
       Alert.alert("Google Sign-In", "Kinansela ang Google Sign-In.");
+      setIsSigningInWithGoogle(false);
     } else if (response?.type === 'error') {
-      console.error("Google Sign-In Error Response:", response.error);
-      Alert.alert("Google Sign-In Error", "May problema sa Google Sign-In. Subukang muli. Error: " + (response.error?.message || "Unknown error."));
+      console.error("DEBUG: useEffect - Google Sign-In error response:", response.error);
+      let userFriendlyMessage = 'May problema sa Google Sign-In. Subukang muli.';
+      if (response.error && response.error.message) {
+        userFriendlyMessage = 'Google Sign-In error: ' + response.error.message;
+      }
+      Alert.alert("Google Sign-In Error", userFriendlyMessage);
+      setIsSigningInWithGoogle(false);
     }
-  }, [response]); // Ang effect na ito ay tatakbo lang kapag nagbago ang 'response' object
+  }, [response, auth, navigation]); 
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -69,7 +104,8 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
-    setLoading(true); // Start loading
+    setIsLoggingIn(true);
+    setIsSigningInWithGoogle(false);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -77,28 +113,115 @@ export default function LoginScreen({ navigation }) {
       console.log('User logged in:', user.email);
       navigation.replace('Home');
     } catch (error) {
-      const errorMessage = error.message;
-      Alert.alert('Login Error', errorMessage);
-      console.error('Login Error:', errorMessage);
+      let userFriendlyMessage = 'May hindi inaasahang error na naganap. Pakisubukan muli.';
+      switch (error.code) {
+        case 'auth/invalid-credential':
+          userFriendlyMessage = 'Mali ang email o password. Pakisuri ang iyong credentials.';
+          break;
+        case 'auth/user-disabled':
+          userFriendlyMessage = 'Ang iyong account ay na-disable. Pakikontak ang suporta.';
+          break;
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          userFriendlyMessage = 'Mali ang email o password. Pakisuri ang iyong credentials.';
+          break;
+        case 'auth/invalid-email':
+          userFriendlyMessage = 'Ang email address ay hindi valid.';
+          break;
+        case 'auth/network-request-failed':
+          userFriendlyMessage = 'Walang koneksyon sa internet. Pakisuri ang iyong koneksyon.';
+          break;
+        default:
+          userFriendlyMessage = 'Nabigo ang pag-login. ' + error.message;
+      }
+      Alert.alert('Login Error', userFriendlyMessage);
     } finally {
-      setLoading(false); // End loading
+      setIsLoggingIn(false);
     }
   };
 
+  // UPDATED: Manual Google Sign-in Flow (using hardcoded redirect URI with URLSearchParams)
   const handleGoogleSignIn = async () => {
-    // I-disable ang button kung walang request object (hindi pa ready ang auth session)
-    if (!request) {
-      Alert.alert("Google Sign-In", "Google Sign-In is not ready yet. Please try again.");
-      return;
-    }
-    setLoading(true); // Start loading for Google Sign-In
+    setIsSigningInWithGoogle(true);
+    setIsLoggingIn(false);
+
+    let result = null; 
+
     try {
-      await promptAsync(); // Ito ang magbubukas ng browser para sa Google Sign-In
-      // Ang response ay hahawakan ng useEffect hook
+      const params = new URLSearchParams({
+        client_id: googleWebClientId,
+        redirect_uri: expoRedirectUri,
+        response_type: 'id_token', 
+        scope: 'openid profile email', 
+        nonce: Math.random().toString(36).substring(2),
+        prompt: 'select_account' 
+      });
+
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+
+      console.log("DEBUG: handleGoogleSignIn - Constructed Google Auth URL:", authUrl);
+      console.log("DEBUG: handleGoogleSignIn - Expected Expo Redirect URI:", expoRedirectUri);
+      console.log("DEBUG: handleGoogleSignIn - Attempting to open WebBrowser...");
+
+      result = await WebBrowser.openAuthSessionAsync(authUrl, expoRedirectUri); 
+      console.log("DEBUG: handleGoogleSignIn - WebBrowser.openAuthSessionAsync result:", result);
+
+      if (result.type === 'success' && result.url) {
+        console.log("DEBUG: handleGoogleSignIn - WebBrowser session successful. Redirect URL:", result.url);
+        const redirectUri = new URL(result.url);
+        const idToken = redirectUri.searchParams.get('id_token');
+        
+        console.log("DEBUG: handleGoogleSignIn - Raw redirect URL search params:", redirectUri.search);
+        console.log("DEBUG: handleGoogleSignIn - Retrieved id_token from URL:", idToken ? "Exists" : "Does NOT exist", idToken ? "Length: " + idToken.length : "");
+
+        if (idToken) {
+          console.log("DEBUG: handleGoogleSignIn - Attempting Firebase signInWithCredential with ID Token...");
+          const credential = GoogleAuthProvider.credential(idToken);
+          
+          await signInWithCredential(auth, credential)
+            .then(() => {
+              console.log('DEBUG: handleGoogleSignIn - ✅ Matagumpay na naka-log in gamit ang Google (Firebase).');
+              Alert.alert("Success", "Successfully logged in with Google!"); 
+              navigation.replace('Home');
+            })
+            .catch((firebaseError) => {
+              console.error("DEBUG: handleGoogleSignIn - Firebase signInWithCredential failed:", firebaseError);
+              let userFriendlyMessage = 'May problema sa Firebase Google Sign-In. Subukang muli.';
+              switch (firebaseError.code) {
+                case 'auth/invalid-credential':
+                  userFriendlyMessage = 'Invalid Google credential. Please ensure your Firebase project is correctly linked to Google Cloud project and Google Sign-In is enabled.';
+                  break;
+                case 'auth/account-exists-with-different-credential':
+                  userFriendlyMessage = 'Mayroon ka nang account gamit ang ibang paraan ng pag-sign in. Subukang mag-log in gamit ang email/password o ibang provider.';
+                  break;
+                case 'auth/popup-closed-by-user':
+                  userFriendlyMessage = 'Kinansela ang Google Sign-In popup.';
+                  break;
+                case 'auth/network-request-failed':
+                  userFriendlyMessage = 'Walang koneksyon sa internet. Pakisuri ang iyong koneksyon.';
+                  break;
+                default:
+                  userFriendlyMessage = `Firebase Sign-In failed: ${firebaseError.message}`;
+              }
+              Alert.alert("Google Sign-In Error", userFriendlyMessage);
+            });
+        } else {
+          Alert.alert("Google Sign-In", "❌ Walang ID token na nakuha sa redirect URL. Pakisuri ang Google Cloud Console settings at OAuth consent screen.");
+          console.error("DEBUG: handleGoogleSignIn - Redirect URL (no ID token):", result.url); 
+        }
+      } else if (result.type === 'cancel' || result.type === 'dismiss') {
+        console.log("DEBUG: handleGoogleSignIn - WebBrowser session cancelled or dismissed.");
+        Alert.alert("Google Sign-In", "❌ Kinansela ang Google Sign-In.");
+      } else {
+        console.error('DEBUG: handleGoogleSignIn - WebBrowser session error (unexpected type):', result); 
+        Alert.alert('Google Sign-In Error', '❌ May problema sa Google Sign-In. Subukang muli.');
+      }
     } catch (error) {
-      console.error('Error initiating Google Sign-In:', error);
-      Alert.alert('Google Sign-In Error', 'Could not initiate Google Sign-In. Please try again.');
-      setLoading(false); // End loading if initiation fails
+      console.error('DEBUG: handleGoogleSignIn - ❌ Overall Error initiating Google Sign-In:', error);
+      Alert.alert('Google Sign-In Error', `❌ Hindi masimulan ang Google Sign-In. Error: ${error.message || 'Unknown error'}. Pakisubukan muli.`);
+    } finally {
+      setIsSigningInWithGoogle(false);
+      console.log("DEBUG: handleGoogleSignIn - Finally block executed. isSigningInWithGoogle set to false.");
     }
   };
 
@@ -109,6 +232,8 @@ export default function LoginScreen({ navigation }) {
   const handleForgotPassword = () => {
     Alert.alert('Forgot Password', 'Feature to be implemented. Please contact support.');
   };
+
+  const anyLoading = isLoggingIn || isSigningInWithGoogle;
 
   return (
     <KeyboardAvoidingView
@@ -133,65 +258,62 @@ export default function LoginScreen({ navigation }) {
               autoCapitalize="none"
               value={email}
               onChangeText={setEmail}
-              editable={!loading} // Disable input when loading
+              editable={!anyLoading}
             />
 
-            {/* Password input with show/hide toggle */}
             <View style={styles.passwordInputContainer}>
               <TextInput
                 style={styles.passwordInputField}
                 placeholder="Password"
                 placeholderTextColor="#888"
-                secureTextEntry={!showPassword} // Toggle based on showPassword state
+                secureTextEntry={!showPassword}
                 value={password}
                 onChangeText={setPassword}
-                editable={!loading} // Disable input when loading
+                editable={!anyLoading}
               />
               <TouchableOpacity
                 style={styles.togglePasswordButton}
-                onPress={() => setShowPassword(!showPassword)} // Toggle showPassword state
-                disabled={loading}
+                onPress={() => setShowPassword(!showPassword)}
+                disabled={anyLoading}
               >
                 <Image
                   source={{
                     uri: showPassword
-                      ? 'https://img.icons8.com/material-outlined/24/000000/visible--v1.png' // Eye open icon
-                      : 'https://img.icons8.com/material-outlined/24/000000/invisible--v1.png' // Eye closed icon
+                      ? 'https://img.icons8.com/material-outlined/24/000000/visible--v1.png'
+                      : 'https://img.icons8.com/material-outlined/24/000000/invisible--v1.png'
                   }}
                   style={styles.togglePasswordIcon}
                 />
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotPasswordButton} disabled={loading}>
+            <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotPasswordButton} disabled={anyLoading}>
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+            <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={anyLoading}>
               <Text style={styles.buttonText}>
-                {loading ? <ActivityIndicator color="#fff" /> : 'Log In'}
+                {isLoggingIn ? <ActivityIndicator color="#fff" /> : 'Log In'}
               </Text>
             </TouchableOpacity>
 
-            {/* Separator or "OR" text */}
             <View style={styles.separatorContainer}>
               <View style={styles.separatorLine} />
               <Text style={styles.separatorText}>OR</Text>
               <View style={styles.separatorLine} />
             </View>
 
-            {/* Sign in with Google Button */}
             <TouchableOpacity
-              style={[styles.googleButton, (!request || loading) && styles.disabledButton]} // I-disable kung hindi ready ang request o kung loading
+              style={[styles.googleButton, isSigningInWithGoogle && styles.disabledButton]}
               onPress={handleGoogleSignIn}
-              disabled={!request || loading} // I-disable kung hindi ready ang request o kung loading
+              disabled={isSigningInWithGoogle || isLoggingIn}
             >
-              {loading ? (
-                <ActivityIndicator color="#4A148C" /> // Loading indicator sa Google button
+              {isSigningInWithGoogle ? (
+                <ActivityIndicator color="#4A148C" />
               ) : (
                 <>
                   <Image
-                    source={{ uri: 'https://img.icons8.com/color/48/000000/google-logo.png' }} // Google icon
+                    source={{ uri: 'https://img.icons8.com/color/48/000000/google-logo.png' }}
                     style={styles.googleIcon}
                   />
                   <Text style={styles.googleButtonText}>Sign in with Google</Text>
@@ -199,7 +321,7 @@ export default function LoginScreen({ navigation }) {
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleRegisterRedirect} disabled={loading}>
+            <TouchableOpacity onPress={handleRegisterRedirect} disabled={anyLoading}>
               <Text style={styles.registerText}>
                 Don't have an account? <Text style={styles.registerLink}>Register here.</Text>
               </Text>
@@ -214,7 +336,7 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FCE4EC', // Light pink background for a salon feel
+    backgroundColor: '#FCE4EC',
   },
   backgroundImage: {
     flex: 1,
@@ -226,50 +348,49 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Semi-transparent white overlay
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   card: {
-    width: '90%', // Adjusted width for better mobile display
-    maxWidth: 400, // Max width for larger screens
+    width: '90%',
+    maxWidth: 400,
     backgroundColor: '#fff',
-    borderRadius: 20, // More rounded corners for a softer look
+    borderRadius: 20,
     padding: 30,
-    shadowColor: '#000', // Shadow for depth
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.1,
     shadowRadius: 20,
-    elevation: 15, // Android shadow
+    elevation: 15,
     alignItems: 'center',
   },
   headerText: {
     fontSize: 24,
     fontWeight: '600',
     marginBottom: 5,
-    color: '#880E4F', // Darker pink/maroon for salon theme
+    color: '#880E4F',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 30,
-    color: '#4A148C', // Deep purple for elegance
+    color: '#4A148C',
     textAlign: 'center',
   },
   input: {
     width: '100%',
-    height: 55, // Slightly taller input fields
-    borderColor: '#E0BBE4', // Light purple border
+    height: 55,
+    borderColor: '#E0BBE4',
     borderWidth: 1,
-    borderRadius: 10, // Rounded input fields
+    borderRadius: 10,
     paddingHorizontal: 20,
-    marginBottom: 15, // Reduced margin for a tighter look
-    backgroundColor: '#F8F8F8', // Off-white input background
+    marginBottom: 15,
+    backgroundColor: '#F8F8F8',
     fontSize: 16,
     color: '#333',
   },
-  // New styles for password input with toggle icon
   passwordInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -280,15 +401,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 15,
     backgroundColor: '#F8F8F8',
-    paddingRight: 10, // Add padding for the icon
+    paddingRight: 10,
   },
   passwordInputField: {
-    flex: 1, // Take up remaining space
+    flex: 1,
     height: '100%',
     paddingHorizontal: 20,
     fontSize: 16,
     color: '#333',
-    // No border here as the container has it
   },
   togglePasswordButton: {
     padding: 5,
@@ -296,26 +416,26 @@ const styles = StyleSheet.create({
   togglePasswordIcon: {
     width: 24,
     height: 24,
-    tintColor: '#888', // Make the icon color subtle
+    tintColor: '#888',
   },
   forgotPasswordButton: {
-    alignSelf: 'flex-end', // Align to the right
+    alignSelf: 'flex-end',
     marginBottom: 20,
   },
   forgotPasswordText: {
-    color: '#4A148C', // Deep purple
+    color: '#4A148C',
     fontSize: 14,
     textDecorationLine: 'underline',
   },
   button: {
     width: '100%',
     height: 55,
-    backgroundColor: '#FF80AB', // Vibrant pink button
+    backgroundColor: '#FF80AB',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 25,
-    shadowColor: '#FF80AB', // Pink shadow for button
+    shadowColor: '#FF80AB',
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -325,7 +445,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 19,
     fontWeight: 'bold',
-    letterSpacing: 0.5, // Slightly spaced letters
+    letterSpacing: 0.5,
   },
   separatorContainer: {
     flexDirection: 'row',
@@ -350,8 +470,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     height: 55,
-    backgroundColor: '#FFFFFF', // White background for Google button
-    borderColor: '#DDD', // Light gray border
+    backgroundColor: '#FFFFFF',
+    borderColor: '#DDD',
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 20,
@@ -367,11 +487,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   googleButtonText: {
-    color: '#4A148C', // Deep purple text for consistency
+    color: '#4A148C',
     fontSize: 18,
     fontWeight: '600',
   },
-  disabledButton: { // Style for disabled buttons
+  disabledButton: {
     opacity: 0.6,
   },
   registerText: {
@@ -380,7 +500,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   registerLink: {
-    color: '#4A148C', // Deep purple for the link
+    color: '#4A148C',
     fontWeight: 'bold',
     textDecorationLine: 'underline',
   },
