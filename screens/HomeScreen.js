@@ -1,79 +1,137 @@
-HomeScreen.js
+//HomeScreen.js
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image, Alert } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-// screens/HomeScreen.js
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
-import { getAuth, signOut } from 'firebase/auth';
+const HomeScreen = ({ navigation }) => {
+  const services = [
+    { name: 'Hair Cut', image: require('../assets/OurServicesImage/haircut.webp') },
+    { name: 'Hair Color', image: require('../assets/OurServicesImage/haircolor.webp') },
+    { name: 'Nail Care', image: require('../assets/OurServicesImage/nailcare.webp') },
+    { name: 'Hair Treatment', image: require('../assets/OurServicesImage/hairtreatment.webp') },
+    { name: 'Rebond & Forms', image: require('../assets/OurServicesImage/rebondandforms.webp') },
+    { name: 'Foot Spa', image: require('../assets/OurServicesImage/footspa.webp') },
+  ];
 
-export default function HomeScreen({ navigation }) {
-  // Get the auth instance
-  const auth = getAuth();
-
-  const handleLogout = async () => {
-    try {
-      // Attempt to log out using Firebase
-      await signOut(auth);
-      console.log('User logged out');
-      // Redirect to Login screen after logout
-      navigation.replace('Login');
-    } catch (error) {
-      // If there's a logout error
-      console.error('Logout Error:', error.message);
-      Alert.alert('Logout Error', error.message);
-    }
-  };
+  const handleServicePress = (serviceName) => {
+  if (serviceName === 'Hair Cut') {
+    navigation.navigate('ServiceDetailScreen', {
+      service: {
+        name: 'Hair Cut',
+        styles: [
+          { name: 'Fade', image: require('../assets/Haircut/fade.webp') },
+          { name: 'Layered', image: require('../assets/Haircut/layered.webp') },
+          { name: 'Trim', image: require('../assets/Haircut/trim.webp') },
+        ],
+      },
+    });
+  } else {
+    Alert.alert('Coming Soon', `${serviceName} services are still being prepared.`);
+  }
+};
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.headerText}>Van's Glow up Salon</Text>
-      <Text style={styles.title}>Welcome Home, User!</Text>
-      <Text style={styles.subtitle}>This is your main dashboard.</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Welcome back, Boss!</Text>
+          <Icon name="notifications-outline" size={24} color="#000" />
+        </View>
 
-      {/* Button for logout */}
-      <TouchableOpacity style={styles.button} onPress={handleLogout}>
-        <Text style={styles.buttonText}>Logout</Text>
-      </TouchableOpacity>
-    </View>
+        {/* Banner */}
+        <View style={styles.banner}>
+          <Text style={{ color: '#fff' }}>Banner Image Here</Text>
+        </View>
+
+        {/* Our Services */}
+        <Text style={styles.servicesTitle}>Our Services</Text>
+        <View style={styles.servicesContainer}>
+          {services.map((service, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.serviceCard}
+              onPress={() => handleServicePress(service.name)}
+              activeOpacity={0.8}
+            >
+              <Image source={service.image} style={styles.serviceImage} resizeMode="cover" />
+              <View style={styles.serviceLabelContainer}>
+                <Text style={styles.serviceText}>{service.name}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
+  scrollContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 130,
+    paddingTop: 27,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 20,
+    marginTop: 30,
   },
   headerText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#555',
+    fontSize: 20,
+    color: '#000',
+    fontWeight: '600',
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#333',
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#666',
-    marginBottom: 40,
-  },
-  button: {
-    width: '80%',
-    height: 50,
-    backgroundColor: '#dc3545', // Red color for logout
-    borderRadius: 8,
+  banner: {
+    backgroundColor: '#000000',
+    height: 150,
+    marginVertical: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    borderRadius: 15,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
+  servicesTitle: {
+    fontSize: 22,
     fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 15,
+    color: '#333',
+  },
+  servicesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  serviceCard: {
+    width: '47%',
+    height: 180,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    marginBottom: 18,
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  serviceImage: {
+    width: '100%',
+    height: '70%',
+  },
+  serviceLabelContainer: {
+    flex: 1,
+    backgroundColor: '#7a0000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  serviceText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+    paddingHorizontal: 5,
   },
 });
+
+export default HomeScreen;
