@@ -46,6 +46,9 @@ import RegisterScreen from "./screens/RegisterScreen";
 import BottomTabNavigator from "./navigation/BottomTabNavigator";
 import ServicesScreen from "./screens/ServicesScreen";
 import ServiceDetailScreen from "./screens/ServiceDetailScreen";
+import BookingScreen from './screens/BookingScreen'; 
+import BookingFormScreen from './screens/BookingFormScreen';
+import PaymentMethodScreen from './screens/PaymentMethodScreen';
 
 const Stack = createNativeStackNavigator();
 const { width, height } = Dimensions.get("window");
@@ -132,6 +135,21 @@ export default function App() {
           component={ServiceDetailScreen}
           options={{ headerShown: false }}
         />
+         <Stack.Screen name="BookingScreen"
+          component={BookingScreen} 
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+         name="BookingFormScreen"
+         component={BookingFormScreen}
+        options={{ title: 'Booking Details' }}
+       />
+
+       <Stack.Screen
+         name="PaymentMethodScreen"
+         component={PaymentMethodScreen}
+        options={{ title: 'Payment Method' }}
+      />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

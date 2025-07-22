@@ -1,17 +1,8 @@
-// navigation/BottomTabNavigator.js
-import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Platform, View, Text } from 'react-native';
-
+import { StyleSheet, View, Text, Pressable, Platform } from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
-
-const ProfileScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
-    <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Profile Screen</Text>
-    <Text style={{ fontSize: 16, marginTop: 10 }}>This is your profile page.</Text>
-  </View>
-);
+import ProfileScreen from '../screens/ProfileScreen';
 
 const BookingsScreen = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
@@ -26,7 +17,17 @@ export default function BottomTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarButton: (props) => (
+          <Pressable
+            android_ripple={null}
+            style={({ pressed }) => [
+              styles.buttonStyle,
+              pressed && Platform.OS === 'ios' && { opacity: 0.7 }
+            ]}
+            {...props}
+          />
+        ),
+        tabBarIcon: ({ focused }) => {
           let iconName;
 
           if (route.name === 'Home') {
@@ -37,10 +38,13 @@ export default function BottomTabNavigator() {
             iconName = focused ? 'person' : 'person-outline';
           }
 
-          return <Ionicons name={iconName} size={30} color={color} />;
+          return (
+            <View style={styles.iconWrapper}>
+              <Ionicons name={iconName} size={26} color={focused ? '#FFFFFF' : 'rgba(255, 255, 255, 0.6)'} />
+              {focused && <View style={styles.activeDot} />}
+            </View>
+          );
         },
-        tabBarActiveTintColor: '#FFFFFF',
-        tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.6)',
         tabBarShowLabel: false,
         tabBarStyle: styles.tabBar,
         headerShown: false,
@@ -55,21 +59,30 @@ export default function BottomTabNavigator() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#000000',
+    backgroundColor: '#800000',
     borderTopWidth: 0,
-    height: 90,
-    paddingBottom: 20,
-    paddingTop: 20,
+    height: 80,
+    paddingBottom: 15,
+    paddingTop: 15,
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 0,
+    elevation: 0,
+    shadowColor: 'transparent',
+  },
+  iconWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#FFFFFF',
+    marginTop: 4,
+  },
+  buttonStyle: {
+    flex: 1,
   },
 });

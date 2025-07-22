@@ -1,51 +1,57 @@
-// screens/ProfileScreen.js
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { getAuth, signOut } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';
 
-export default function ProfileScreen() {
+const ProfileScreen = () => {
+  const navigation = useNavigation();
+  const auth = getAuth();
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout Confirmation',
+      'Are you sure you want to log out?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut(auth);
+              navigation.replace('Login');
+            } catch (error) {
+              console.error('Logout error:', error.message);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.headerText}>Profile Screen</Text>
-        <Text style={styles.subtitle}>
-          Dito mo ilalagay ang user profile information.
-        </Text>
-      </View>
-    </SafeAreaView>
-  );
-}
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F5F5' }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Profile Screen</Text>
+      <Text style={{ fontSize: 16, marginTop: 10 }}>This is your profile page.</Text>
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#e0f7fa', // Light blue background
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  container: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
-    width: '90%',
-    maxWidth: 400,
-    alignItems: 'center',
-  },
-  headerText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#007bff', // Blue color
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#666',
-    textAlign: 'center',
-  },
-});
+      <TouchableOpacity
+        onPress={handleLogout}
+        style={{
+          marginTop: 30,
+          marginBottom: 50,
+          backgroundColor: '#FF4D4D',
+          paddingVertical: 12,
+          paddingHorizontal: 24,
+          borderRadius: 8,
+        }}
+      >
+        <Text style={{ color: '#ffffff', fontWeight: 'bold', fontSize: 16 }}>Logout</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+export default ProfileScreen;
