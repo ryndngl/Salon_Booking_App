@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,11 +12,25 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import { services } from './servicesData'; // servicesData = with styles and images
+import { services } from './servicesData';
+import { getAuth } from 'firebase/auth';
+
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
+  const [displayName, setDisplayName] = useState('');
+
+  useEffect(() => {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (currentUser) {
+      setDisplayName(currentUser.displayName || 'Boss');
+    } else {
+      setDisplayName('Boss');
+    }
+  }, []);
 
   const testimonials = [
     { id: 1, name: 'Ryan Laurence D.', feedback: 'Loved my new style!' },
@@ -76,11 +90,23 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Welcome back, Boss!</Text>
-          <Icon name="notifications-outline" size={29} color="#000" />
-        </View>
+   {/* Header Card */}
+<View style={styles.headerContainer}>
+  <View style={styles.headerLeft}>
+    <Icon name="person-circle-outline" size={70} color="#555" style={styles.profileIcon} />
+    <View>
+      <Text style={styles.headerGreeting}>Welcome back! </Text>
+      <Text style={styles.headerName}>{displayName}</Text>
+    </View>
+  </View>
+  <TouchableOpacity onPress={() => navigation.navigate('NotificationScreen')}>
+  <View style={{ position: 'relative' }}>
+    <Icon name="notifications" size={31} color="#f56a79" />
+    <View style={styles.notifBadge} />
+  </View>
+</TouchableOpacity>
+</View>
+
 
         {/* Banner */}
         <View style={styles.banner}>
@@ -199,21 +225,53 @@ const styles = StyleSheet.create({
     paddingTop: 27,
     backgroundColor: '#f7f7f7',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  headerText: {
-    fontSize: 20,
-    color: '#111',
-    fontWeight: '600',
-  },
+headerContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginTop: 40,
+  padding: 20,  
+  backgroundColor: '#f9f9f9', 
+  borderRadius: 16,
+  borderColor: '#D4D4D4',
+  elevation: 4, 
+},
+
+headerLeft: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+
+profileIcon: {
+  marginRight: 12,
+},
+
+headerGreeting: {
+  fontSize: 16,
+  color: '#777',
+},
+
+headerName: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#222',
+},
+notifBadge: {
+  position: 'absolute',
+  top: -2,
+  right: -2,
+  backgroundColor: 'red',
+  width: 10,
+  height: 10,
+  borderRadius: 5,
+  borderWidth: 1,
+  borderColor: '#fff',
+},
+
   banner: {
     backgroundColor: '#d13f3f',
     height: 160,
-    marginVertical: 20,
+    marginVertical: 30,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 20,
@@ -240,15 +298,12 @@ const styles = StyleSheet.create({
     paddingRight: 15,
     paddingVertical: 12,
     fontSize: 16,
-    borderColor: '#d13f3f',
-    borderWidth: 1.5,
+    borderColor: '#D4D4D4',
+    borderWidth: 1,
     marginBottom: 20,
     color: '#000',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    elevation: 2,
+
     position: 'relative',
   },
   servicesContainer: {
@@ -263,13 +318,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 18,
     overflow: 'hidden',
-    borderWidth: 3,
-    borderColor: '#eee',
+    borderWidth: 1,
+    borderColor: '#D4D4D4',
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     alignItems: 'center',
   },
   serviceImage: {
@@ -277,7 +328,7 @@ const styles = StyleSheet.create({
     height: '65%',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    backgroundColor: '#f2f2f2',
+    borderColor: '#D4D4D4',
   },
   serviceLabelContainer: {
     flex: 1,
@@ -303,6 +354,7 @@ const styles = StyleSheet.create({
   testimonialCard: {
     backgroundColor: '#fff',
     borderRadius: 14,
+    borderColor: '#D4D4D4',
     padding: 15,
     marginBottom: 15,
     borderWidth: 1,
@@ -339,7 +391,6 @@ const styles = StyleSheet.create({
     color: '#777',
     marginTop: 4,
   },
-  
 });
 
 export default HomeScreen;

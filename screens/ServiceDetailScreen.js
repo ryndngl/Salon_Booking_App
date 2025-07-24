@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = (screenWidth - 48) / 2; // for 2-column grid with spacing
@@ -13,77 +14,83 @@ const ServiceDetailScreen = () => {
 
   const [selectedCategory, setSelectedCategory] = useState('Men');
 
- const isHairCut = service.name.trim().toLowerCase() === 'hair cut';
+  const isHairCut = service.name.trim().toLowerCase() === 'hair cut';
 
- const filteredStyles = isHairCut
-  ? service.styles.filter((style) => style.category === selectedCategory)
-  : service.styles.filter((style) => !style.category);
+  const filteredStyles = isHairCut
+    ? service.styles.filter((style) => style.category === selectedCategory)
+    : service.styles.filter((style) => !style.category);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingTop: 20 }}>
-      <Text style={styles.title}>{service.name}</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>{service.name}</Text>
 
-      {/* Category Tabs */}
-     {service.name === 'Hair Cut' && (
-  <View style={styles.tabs}>
-    {categories.map((category) => (
-      <TouchableOpacity
-        key={category}
-        style={[
-          styles.tabButton,
-          selectedCategory === category && styles.activeTab,
-        ]}
-        onPress={() => setSelectedCategory(category)}
-      >
-        <Text
-          style={[
-            styles.tabText,
-            selectedCategory === category && styles.activeTabText,
-          ]}
-        >
-          {category}
-        </Text>
-      </TouchableOpacity>
-    ))}
-  </View>
-)}
-
-      {/* Grid of Styles */}
-      <View style={styles.grid}>
-        {filteredStyles.map((style, index) => (
-          <View key={index} style={styles.card}>
-            <View style={styles.cardContent}>
-              <Image source={style.image} style={styles.image} />
-              <Text style={styles.styleName}>{style.name}</Text>
-              <Text style={styles.price}>₱{style.price}</Text>
-
+        {/* Category Tabs */}
+        {isHairCut && (
+          <View style={styles.tabs}>
+            {categories.map((category) => (
               <TouchableOpacity
-                style={styles.bookNowButton}
-                onPress={() =>
-                  navigation.navigate('BookingFormScreen', {
-                    serviceName: service.name,
-                    styleName: style.name,
-                    stylePrice: style.price,
-                  })
-                }
+                key={category}
+                style={[
+                  styles.tabButton,
+                  selectedCategory === category && styles.activeTab,
+                ]}
+                onPress={() => setSelectedCategory(category)}
               >
-                <Text style={styles.bookNowButtonText}>Book Now</Text>
+                <Text
+                  style={[
+                    styles.tabText,
+                    selectedCategory === category && styles.activeTabText,
+                  ]}
+                >
+                  {category}
+                </Text>
               </TouchableOpacity>
-            </View>
+            ))}
           </View>
-        ))}
-      </View>
-    </ScrollView>
+        )}
+
+        {/* Grid of Styles */}
+        <View style={styles.grid}>
+          {filteredStyles.map((style, index) => (
+            <View key={index} style={styles.card}>
+              <View style={styles.cardContent}>
+                <Image source={style.image} style={styles.image} />
+                <Text style={styles.styleName}>{style.name}</Text>
+                <Text style={styles.price}>₱{style.price}</Text>
+
+                <TouchableOpacity
+                  style={styles.bookNowButton}
+                  onPress={() =>
+                    navigation.navigate('BookingFormScreen', {
+                      serviceName: service.name,
+                      styleName: style.name,
+                      stylePrice: style.price,
+                    })
+                  }
+                >
+                  <Text style={styles.bookNowButtonText}>Book Now</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 export default ServiceDetailScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    padding: 16,
+    backgroundColor: '#fff',
+  },
+  container: {
+    paddingTop: 3,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
   },
   title: {
     fontSize: 24,

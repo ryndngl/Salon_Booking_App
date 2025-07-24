@@ -1,4 +1,4 @@
-// screens/RegisterScreen.js
+// screens/RegisterScreen.js// screens/RegisterScreen.js
 import { useState } from "react";
 import {
   StyleSheet,
@@ -10,22 +10,22 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
-  Image, // Import Image for the eye icon
+  Image,
 } from "react-native";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 export default function RegisterScreen({ navigation }) {
+  const [fullName, setFullName] = useState(""); // 👈 NEW: name field
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State for password visibility
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // State for confirm password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Get the authentication service from the Firebase app
   const auth = getAuth();
 
   const handleRegister = async () => {
-    if (!email || !password || !confirmPassword) {
+    if (!fullName || !email || !password || !confirmPassword) {
       Alert.alert("Error", "Please fill in all required information.");
       return;
     }
@@ -39,45 +39,52 @@ export default function RegisterScreen({ navigation }) {
     }
 
     try {
-      // Attempt to register using Firebase
       const userCredential = await createUserWithEmailAndPassword(
         auth, email, password
       );
-      const user = userCredential.user;
-      Alert.alert("Success", "Account created successfully!");
-      console.log("User registered:", user.email);
-      // Redirect to Login screen after successful registration
+
+      // ✅ Update displayName with full name
+      await updateProfile(userCredential.user, {
+        displayName: fullName,
+      });
+
+      Alert.alert("Success", `Welcome, ${fullName}! Your account has been created.`);
+      console.log("User registered:", userCredential.user.email);
       navigation.navigate("Login");
     } catch (error) {
-      // If there's a registration error, display the error message
-      const errorMessage = error.message;
-      Alert.alert("Registration Error", errorMessage);
-      console.error("Registration Error:", errorMessage);
+      Alert.alert("Registration Error", error.message);
+      console.error("Registration Error:", error.message);
     }
   };
 
   const handleLoginRedirect = () => {
-    // Redirect to Login screen
     navigation.navigate("Login");
   };
 
   return (
-    // KeyboardAvoidingView helps prevent the keyboard from obscuring input fields
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      {/* ImageBackground can be used for a subtle background image or a color overlay */}
       <ImageBackground
-        source={{ uri: 'https://placehold.co/700x1200/FCE4EC/880E4F?text=Salon+Background' }} // Placeholder image, replace with a real salon image
+        source={{ uri: 'https://placehold.co/700x1200/FCE4EC/880E4F?text=Salon+Background' }}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
         <View style={styles.overlay}>
-          {/* Main content wrapper */}
           <View style={styles.card}>
             <Text style={styles.headerText}>Join Our Salon Community!</Text>
             <Text style={styles.title}>Create Your Account</Text>
+
+            {/* ✅ Full Name Input */}
+            <TextInput
+              style={styles.input}
+              placeholder="Full Name"
+              placeholderTextColor="#888"
+              autoCapitalize="words"
+              value={fullName}
+              onChangeText={setFullName}
+            />
 
             {/* Email Input */}
             <TextInput
@@ -90,62 +97,60 @@ export default function RegisterScreen({ navigation }) {
               onChangeText={setEmail}
             />
 
-            {/* Password Input with show/hide toggle */}
+            {/* Password Input */}
             <View style={styles.passwordInputContainer}>
               <TextInput
                 style={styles.passwordInputField}
                 placeholder="Password"
                 placeholderTextColor="#888"
-                secureTextEntry={!showPassword} // Toggle based on showPassword state
+                secureTextEntry={!showPassword}
                 value={password}
                 onChangeText={setPassword}
               />
               <TouchableOpacity
                 style={styles.togglePasswordButton}
-                onPress={() => setShowPassword(!showPassword)} // Toggle showPassword state
+                onPress={() => setShowPassword(!showPassword)}
               >
                 <Image
                   source={{
                     uri: showPassword
-                      ? 'https://img.icons8.com/material-outlined/24/000000/visible--v1.png' // Eye open icon
-                      : 'https://img.icons8.com/material-outlined/24/000000/invisible--v1.png' // Eye closed icon
+                      ? 'https://img.icons8.com/material-outlined/24/000000/visible--v1.png'
+                      : 'https://img.icons8.com/material-outlined/24/000000/invisible--v1.png'
                   }}
                   style={styles.togglePasswordIcon}
                 />
               </TouchableOpacity>
             </View>
 
-            {/* Confirm Password Input with show/hide toggle */}
+            {/* Confirm Password Input */}
             <View style={styles.passwordInputContainer}>
               <TextInput
                 style={styles.passwordInputField}
                 placeholder="Confirm Password"
                 placeholderTextColor="#888"
-                secureTextEntry={!showConfirmPassword} // Toggle based on showConfirmPassword state
+                secureTextEntry={!showConfirmPassword}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
               />
               <TouchableOpacity
                 style={styles.togglePasswordButton}
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)} // Toggle showConfirmPassword state
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 <Image
                   source={{
                     uri: showConfirmPassword
-                      ? 'https://img.icons8.com/material-outlined/24/000000/visible--v1.png' // Eye open icon
-                      : 'https://img.icons8.com/material-outlined/24/000000/invisible--v1.png' // Eye closed icon
+                      ? 'https://img.icons8.com/material-outlined/24/000000/visible--v1.png'
+                      : 'https://img.icons8.com/material-outlined/24/000000/invisible--v1.png'
                   }}
                   style={styles.togglePasswordIcon}
                 />
               </TouchableOpacity>
             </View>
 
-            {/* Register Button */}
             <TouchableOpacity style={styles.button} onPress={handleRegister}>
               <Text style={styles.buttonText}>Register</Text>
             </TouchableOpacity>
 
-            {/* Login Redirect Link */}
             <TouchableOpacity onPress={handleLoginRedirect}>
               <Text style={styles.loginText}>
                 Already have an account? <Text style={styles.loginLink}>Login here.</Text>
@@ -157,6 +162,10 @@ export default function RegisterScreen({ navigation }) {
     </KeyboardAvoidingView>
   );
 }
+
+// ➡ Styles are unchanged, no need to modify your existing style definitions
+// (you already have `styles.input` which works for Full Name too)
+
 
 const styles = StyleSheet.create({
   container: {

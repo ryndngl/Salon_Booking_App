@@ -50,7 +50,7 @@ export default function LoginScreen({ navigation }) {
   const expoRedirectUri = "https://auth.expo.io/@ryandingle01/SalonBookingApp";
 
   // Your Web Client ID from Google Cloud Console
-  const googleWebClientId =
+   const googleWebClientId =
     "365428725051-kmjh4jtck7n6kgs4etn8vvscj5228a56.apps.googleusercontent.com";
 
   // We are no longer using Google.useAuthRequest directly for the prompt

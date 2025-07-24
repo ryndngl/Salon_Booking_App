@@ -40,7 +40,8 @@ const haircutStyles = {
 const BookingFormScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-
+  const passedPrice = route?.params?.stylePrice || 0;
+  const [price, setPrice] = useState(passedPrice);
   const passedServiceName = route?.params?.serviceName || '';
   const [serviceName, setServiceName] = useState(passedServiceName);
   const [category, setCategory] = useState('');
@@ -71,9 +72,10 @@ const BookingFormScreen = () => {
       style,
       date: date.toLocaleDateString(),
       time: selectedTime,
+      price, 
     };
 
-    navigation.navigate('PaymentMethodScreen', { bookingData });
+    navigation.navigate('BookingSummaryScreen', {bookingDetails: bookingData });
   };
 
   return (

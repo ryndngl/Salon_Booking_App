@@ -3,13 +3,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, View, Text, Pressable, Platform } from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import BookingScreen from '../screens/BookingScreen'; 
 
-const BookingsScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
-    <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Bookings Screen</Text>
-    <Text style={{ fontSize: 16, marginTop: 10 }}>Manage your bookings here.</Text>
-  </View>
-);
 
 const Tab = createBottomTabNavigator();
 
@@ -51,7 +46,8 @@ export default function BottomTabNavigator() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Bookings" component={BookingsScreen} />
+     <Tab.Screen name="Bookings" component={BookingScreen}/>
+
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

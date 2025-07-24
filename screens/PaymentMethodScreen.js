@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ScrollView,
+  SafeAreaView,
+} from 'react-native';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 
@@ -8,15 +16,27 @@ const PaymentMethodScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
 
+  // Get booking details from previous screen
+  const { service, date, time } = route.params;
+
   const handleConfirm = () => {
     if (!selectedMethod) {
       Alert.alert("Please select a payment method");
       return;
     }
 
-    Alert.alert("Booking Confirmed", `Payment method: ${selectedMethod}`);
+    // Optional: set price based on service
+    const price = '₱350';
 
-    // Later: navigation.navigate('BookingConfirmationScreen', {...route.params, paymentMethod: selectedMethod });
+    // Navigate to BookingScreen with booking details
+    navigation.navigate('BookingScreen', {
+      service,
+      date,
+      time,
+      paymentMethod: selectedMethod,
+      status: 'Pending',
+      price,
+    });
   };
 
   const paymentOptions = [
@@ -38,50 +58,71 @@ const PaymentMethodScreen = () => {
   ];
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.heading}>Choose Payment Method</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Choose Your Payment Method</Text>
+        </View>
+        <View style={styles.underline} />
 
-      {paymentOptions.map((option) => (
-        <TouchableOpacity
-          key={option.key}
-          style={[
-            styles.card,
-            selectedMethod === option.key && styles.cardSelected,
-          ]}
-          onPress={() => setSelectedMethod(option.key)}
-          activeOpacity={0.8}
-        >
-          <View style={styles.cardContent}>
-            {option.icon}
-            <Text style={styles.cardText}>{option.label}</Text>
-          </View>
-          {selectedMethod === option.key && (
-            <Ionicons name="checkmark-circle" size={22} color="#2ecc71" />
-          )}
+        {paymentOptions.map((option) => (
+          <TouchableOpacity
+            key={option.key}
+            style={[
+              styles.card,
+              selectedMethod === option.key && styles.cardSelected,
+            ]}
+            onPress={() => setSelectedMethod(option.key)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.cardContent}>
+              {option.icon}
+              <Text style={styles.cardText}>{option.label}</Text>
+            </View>
+            {selectedMethod === option.key && (
+              <Ionicons name="checkmark-circle" size={22} color="#2ecc71" />
+            )}
+          </TouchableOpacity>
+        ))}
+
+        <TouchableOpacity style={styles.button} onPress={handleConfirm}>
+          <Text style={styles.buttonText}>Confirm Booking</Text>
         </TouchableOpacity>
-      ))}
-
-      <TouchableOpacity style={styles.button} onPress={handleConfirm}>
-        <Text style={styles.buttonText}>Confirm Booking</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 export default PaymentMethodScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 24,
+  safeArea: {
+    flex: 1,
     backgroundColor: '#f9f9f9',
-    flexGrow: 1,
   },
-  heading: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 24,
-    textAlign: 'center',
-    color: '#2d3436',
+  container: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 60,
+    marginBottom: 10,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginLeft: 10,
+    color: '#f56a79',
+  },
+  underline: {
+    height: 1,
+    backgroundColor: '#ccc',
+    marginVertical: 20,
   },
   card: {
     backgroundColor: '#fff',
