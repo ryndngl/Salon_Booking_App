@@ -30,7 +30,6 @@ const firebaseConfig = {
   appId: "1:365428725051:web:49e45831f046fcbcac531e",
 };
 
-// ✅ FIX: Huwag mag-initialize ng app kung meron nang existing
 const app =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
@@ -46,9 +45,10 @@ import RegisterScreen from "./screens/RegisterScreen";
 import BottomTabNavigator from "./navigation/BottomTabNavigator";
 import ServicesScreen from "./screens/ServicesScreen";
 import ServiceDetailScreen from "./screens/ServiceDetailScreen";
-import BookingScreen from './screens/BookingScreen'; 
+import BookingScreen from './screens/BookingScreen';
 import BookingFormScreen from './screens/BookingFormScreen';
 import PaymentMethodScreen from './screens/PaymentMethodScreen';
+import GetStartedScreen from './screens/GetStartedScreen';
 
 const Stack = createNativeStackNavigator();
 const { width, height } = Dimensions.get("window");
@@ -57,6 +57,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [isAppReady, setIsAppReady] = useState(false);
   const splashFadeOut = useRef(new Animated.Value(1)).current;
+  const [showGetStarted, setShowGetStarted] = useState(false);
 
   useEffect(() => {
     let authUnsubscribe;
@@ -72,6 +73,7 @@ export default function App() {
           useNativeDriver: true,
         }).start(() => {
           setIsAppReady(true);
+          setShowGetStarted(true);
         });
       }
     };
@@ -109,7 +111,14 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={user ? "MainTabs" : "Login"}>
+      <Stack.Navigator
+        initialRouteName={showGetStarted ? "GetStarted" : user ? "MainTabs" : "Login"}
+      >
+        <Stack.Screen
+          name="GetStarted"
+          component={GetStartedScreen}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="Login"
           component={LoginScreen}
@@ -135,21 +144,22 @@ export default function App() {
           component={ServiceDetailScreen}
           options={{ headerShown: false }}
         />
-         <Stack.Screen name="BookingScreen"
-          component={BookingScreen} 
+        <Stack.Screen
+          name="BookingScreen"
+          component={BookingScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
-         name="BookingFormScreen"
-         component={BookingFormScreen}
-        options={{ title: 'Booking Details' }}
-       />
-
-       <Stack.Screen
-         name="PaymentMethodScreen"
-         component={PaymentMethodScreen}
-        options={{ title: 'Payment Method' }}
-      />
+          name="BookingFormScreen"
+          component={BookingFormScreen}
+          options={{ title: 'Booking Details' }}
+        />
+    
+        <Stack.Screen
+          name="PaymentMethodScreen"
+          component={PaymentMethodScreen}
+          options={{ title: 'Payment Method' }}
+        />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
@@ -169,12 +179,5 @@ const styles = StyleSheet.create({
   },
   backgroundImageStyle: {
     resizeMode: "cover",
-  },
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-    padding: 20,
   },
 });

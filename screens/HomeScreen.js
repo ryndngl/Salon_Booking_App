@@ -1,31 +1,31 @@
-// Updated HomeScreen.js with layout: Banner, Our Services, Book Now, Testimonials
-import {View, Text,StyleSheet,TouchableOpacity,ScrollView,SafeAreaView,Image,Alert,TextInput} from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  Image,
+  Alert,
+  TextInput,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import { services } from './servicesData';
+import { services } from './servicesData'; // servicesData = with styles and images
 
- const HomeScreen = () => {
+const HomeScreen = () => {
   const navigation = useNavigation();
-        const testimonials = [
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const testimonials = [
     { id: 1, name: 'Ryan Laurence D.', feedback: 'Loved my new style!' },
     { id: 2, name: 'Joyce-Ann T.', feedback: 'Very professional team.' },
     { id: 3, name: 'Liam Lerio', feedback: 'Pagupit na kayo dito mga Gooding' },
     { id: 4, name: 'Malupiton', feedback: 'Solid dito Bossing' },
-    
   ];
 
-  const handleServicePress = (serviceName) => {
-  const selectedService = services.find(s => s.name === serviceName);
-
-  if (selectedService) {
-    navigation.navigate('ServiceDetailScreen', {
-      service: selectedService,
-    });
-  } else {
-    Alert.alert('Coming Soon', `${serviceName} services are still being prepared.`);
-  }
-};
-   const displayServices = [
+  const displayServices = [
     { name: 'Hair Cut', image: require('../assets/OurServicesImage/haircut.webp') },
     { name: 'Hair Color', image: require('../assets/OurServicesImage/haircolor.webp') },
     { name: 'Hair Treatment', image: require('../assets/OurServicesImage/hairtreatment.webp') },
@@ -33,6 +33,45 @@ import { services } from './servicesData';
     { name: 'Nail Care', image: require('../assets/OurServicesImage/nailcare.webp') },
     { name: 'Foot Spa', image: require('../assets/OurServicesImage/footspa.webp') },
   ];
+
+  const filteredServices = services
+    .map((service) => {
+      const query = searchQuery.toLowerCase();
+      const isServiceMatch = service.name.toLowerCase().includes(query);
+      const matchingStyles = service.styles.filter((style) =>
+        style.name.toLowerCase().includes(query)
+      );
+
+      if (isServiceMatch || matchingStyles.length > 0) {
+        return {
+          name: service.name,
+          image: displayServices.find((d) => d.name === service.name)?.image,
+        };
+      }
+
+      return null;
+    })
+    .filter(Boolean);
+
+  const matchingStyleCards = services.flatMap((service) =>
+    service.styles
+      .filter((style) =>
+        style.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .map((style) => ({
+        ...style,
+        serviceName: service.name,
+      }))
+  );
+
+  const handleServicePress = (serviceName) => {
+    const selectedService = services.find((s) => s.name === serviceName);
+    if (selectedService) {
+      navigation.navigate('ServiceDetailScreen', { service: selectedService });
+    } else {
+      Alert.alert('Coming Soon', `${serviceName} services are still being prepared.`);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
@@ -46,42 +85,101 @@ import { services } from './servicesData';
         {/* Banner */}
         <View style={styles.banner}>
           <Text style={styles.bannerText}>Pamper Yourself Today!</Text>
-          <Text style={[styles.bannerText, { fontSize: 14, marginTop: 5 }]}>Book your favorite salon service now.</Text>
+          <Text style={[styles.bannerText, { fontSize: 14, marginTop: 5 }]}>
+            Book your favorite salon service now.
+          </Text>
         </View>
 
-        {/* Our Services */}
+        {/* Title */}
         <Text style={styles.servicesTitle}>Our Services</Text>
 
-        {/* Optional: Search Bar */}
-        <TextInput
-          placeholder="Search services..."
-          placeholderTextColor="#aaa"
-          style={styles.searchBar}
-        />
-
-        <View style={styles.servicesContainer}>
-          {displayServices.map((service, index) => (
-           <TouchableOpacity
-             key={index}
-             style={styles.serviceCard}
-             onPress={() => handleServicePress(service.name)}
-            activeOpacity={0.85}
-           >
-            <Image source={service.image} style={styles.serviceImage} resizeMode="cover" />
-            <View style={styles.serviceLabelContainer}>
-            <Text style={styles.serviceText}>{service.name}</Text>
-           </View>
-          </TouchableOpacity>
-        ))}
+        {/* Search Bar */}
+        <View style={{ position: 'relative', marginBottom: 20 }}>
+          <Icon
+            name="search-outline"
+            size={20}
+            color="#888"
+            style={{ position: 'absolute', top: 12, left: 15, zIndex: 1 }}
+          />
+          <TextInput
+            placeholder="Search services or styles..."
+            placeholderTextColor="#aaa"
+            style={styles.searchBar}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
         </View>
 
-        {/* Book Now CTA */}
-        <TouchableOpacity style={styles.bookNowCard}>
-          <Text style={styles.bookNowText}>Ready for a new look?</Text>
-          <Text style={styles.bookNowSubText}>Tap here to book your appointment now!</Text>
-        </TouchableOpacity>
+        {/* Show search result cards if there's query */}
+        {searchQuery && matchingStyleCards.length > 0 ? (
+          <View style={styles.servicesContainer}>
+            {matchingStyleCards.map((style, index) => (
+              <View key={index} style={styles.serviceCard}>
+                <Image
+                  source={style.image}
+                  style={styles.serviceImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.serviceLabelContainer}>
+                  <Text style={styles.serviceText}>{style.name}</Text>
+                  <Text style={{ color: '#555', fontSize: 13, marginTop: 4 }}>₱{style.price}</Text>
+                  <TouchableOpacity
+                    style={{
+                      marginTop: 8,
+                      backgroundColor: '#00802b',
+                      paddingVertical: 6,
+                      paddingHorizontal: 12,
+                      borderRadius: 6,
+                    }}
+                    onPress={() =>
+                      navigation.navigate('BookingFormScreen', {
+                        serviceName: style.serviceName,
+                        styleName: style.name,
+                        stylePrice: style.price,
+                      })
+                    }
+                  >
+                    <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>
+                      Book Now
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <>
+            <View style={styles.servicesContainer}>
+              {filteredServices.length === 0 ? (
+                <View style={styles.noResultContainer}>
+                  <Text style={styles.noResultIcon}>😕</Text>
+                  <Text style={styles.noResultText}>No results found.</Text>
+                  <Text style={styles.noResultSubtext}>Try searching with a different keyword.</Text>
+                </View>
+              ) : (
+                filteredServices.map((service, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.serviceCard}
+                    onPress={() => handleServicePress(service.name)}
+                    activeOpacity={0.85}
+                  >
+                    <Image
+                      source={service.image}
+                      style={styles.serviceImage}
+                      resizeMode="cover"
+                    />
+                    <View style={styles.serviceLabelContainer}>
+                      <Text style={styles.serviceText}>{service.name}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))
+              )}
+            </View>
+          </>
+        )}
 
-        {/* Customer Testimonials */}
+        {/* Testimonials */}
         <Text style={styles.testimonialTitle}>What Our Clients Say</Text>
         {testimonials.map((item, index) => (
           <View key={index} style={styles.testimonialCard}>
@@ -136,13 +234,22 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   searchBar: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    paddingLeft: 45,
+    paddingRight: 15,
+    paddingVertical: 12,
+    fontSize: 16,
+    borderColor: '#d13f3f',
+    borderWidth: 1.5,
     marginBottom: 20,
-    borderColor: '#ddd',
-    borderWidth: 1,
+    color: '#000',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    position: 'relative',
   },
   servicesContainer: {
     flexDirection: 'row',
@@ -150,8 +257,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   serviceCard: {
-    width: '47%',
-    height: 170,
+    width: '48%',
+    height: 210,
     backgroundColor: '#fff',
     borderRadius: 16,
     marginBottom: 18,
@@ -163,10 +270,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    alignItems: 'center',
   },
   serviceImage: {
     width: '100%',
-    height: '70%',
+    height: '65%',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     backgroundColor: '#f2f2f2',
@@ -177,29 +285,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     paddingHorizontal: 5,
+    paddingTop: 5,
   },
   serviceText: {
     color: '#d13f3f',
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
-  },
-  bookNowCard: {
-    backgroundColor: '#009900',
-    padding: 20,
-    borderRadius: 16,
-    alignItems: 'center',
-    marginVertical: 25,
-  },
-  bookNowText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: 5,
-  },
-  bookNowSubText: {
-    fontSize: 14,
-    color: '#eee',
   },
   testimonialTitle: {
     fontSize: 22,
@@ -227,6 +319,27 @@ const styles = StyleSheet.create({
     color: '#555',
     lineHeight: 20,
   },
+  noResultContainer: {
+    width: '100%',
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noResultIcon: {
+    fontSize: 48,
+    marginBottom: 8,
+  },
+  noResultText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  noResultSubtext: {
+    fontSize: 14,
+    color: '#777',
+    marginTop: 4,
+  },
+  
 });
 
 export default HomeScreen;

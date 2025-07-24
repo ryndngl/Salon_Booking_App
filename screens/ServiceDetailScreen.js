@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   },
   bookNowButton: {
     marginTop: 10,
-    backgroundColor: '#7a0000',
+    backgroundColor: '#00802b',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 6,

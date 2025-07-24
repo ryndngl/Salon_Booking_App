@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -22,16 +24,13 @@ const timeSlots = [
 const allServices = [
   'Hair Cut',
   'Hair Color',
-  'Hair Rebond',
+  'Rebond & Forms',
   'Hair Treatment',
-  'Hair Spa',
-  'Hot Oil',
-  'Hair Highlights',
-  'Hair Perm',
+  'Foot Spa',
+  'Nail Care',
 ];
 
 const hairCutOptions = ['Men', 'Women', 'Kids'];
-
 const haircutStyles = {
   Men: ['Barber Cut', 'Fade', 'Undercut'],
   Women: ['Layered Cut', 'Pixie', 'Bob'],
@@ -78,143 +77,152 @@ const BookingFormScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.label}>Name:</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your name"
-        value={name}
-        onChangeText={setName}
-      />
-
-      {comingFromCTA && (
-        <>
-          <Text style={styles.label}>Service Type:</Text>
-          <View style={styles.optionsContainer}>
-            {allServices.map((service) => (
-              <TouchableOpacity
-                key={service}
-                style={[
-                  styles.optionButton,
-                  serviceName === service && styles.optionButtonSelected,
-                ]}
-                onPress={() => {
-                  setServiceName(service);
-                  setCategory('');
-                  setStyle('');
-                }}
-              >
-                <Text
-                  style={[
-                    styles.optionButtonText,
-                    serviceName === service && styles.optionButtonTextSelected,
-                  ]}
-                >
-                  {service}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </>
-      )}
-
-      {isHairCut && (
-        <>
-          <Text style={styles.label}>Category:</Text>
-          <View style={styles.optionsContainer}>
-            {hairCutOptions.map((option) => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.optionButton,
-                  category === option && styles.optionButtonSelected,
-                ]}
-                onPress={() => {
-                  setCategory(option);
-                  setStyle('');
-                }}
-              >
-                <Text
-                  style={[
-                    styles.optionButtonText,
-                    category === option && styles.optionButtonTextSelected,
-                  ]}
-                >
-                  {option}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {category && (
-            <>
-              <Text style={styles.label}>Style:</Text>
-              <View style={styles.optionsContainer}>
-                {haircutStyles[category].map((opt) => (
-                  <TouchableOpacity
-                    key={opt}
-                    style={[
-                      styles.optionButton,
-                      style === opt && styles.optionButtonSelected,
-                    ]}
-                    onPress={() => setStyle(opt)}
-                  >
-                    <Text
-                      style={[
-                        styles.optionButtonText,
-                        style === opt && styles.optionButtonTextSelected,
-                      ]}
-                    >
-                      {opt}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </>
-          )}
-        </>
-      )}
-
-      <Text style={styles.label}>Date:</Text>
-      <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.input}>
-        <Text>{date.toDateString()}</Text>
-      </TouchableOpacity>
-      {showDatePicker && (
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display="default"
-          onChange={handleDateChange}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.label}>Name:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your name"
+          value={name}
+          onChangeText={setName}
         />
-      )}
 
-      <Text style={styles.label}>Select Time Slot:</Text>
-      <View style={styles.timeSlotContainer}>
-        {timeSlots.map((slot, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.timeSlot,
-              selectedTime === slot && styles.selectedTimeSlot,
-            ]}
-            onPress={() => setSelectedTime(slot)}
-          >
-            <Text
+        {comingFromCTA && (
+          <>
+            <Text style={styles.label}>Service Type:</Text>
+            <View style={styles.optionsContainer}>
+              {allServices.map((service) => (
+                <TouchableOpacity
+                  key={service}
+                  style={[
+                    styles.optionButton,
+                    serviceName === service && styles.optionButtonSelected,
+                  ]}
+                  onPress={() => {
+                    setServiceName(service);
+                    setCategory('');
+                    setStyle('');
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.optionButtonText,
+                      serviceName === service && styles.optionButtonTextSelected,
+                    ]}
+                  >
+                    {service}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
+
+        {isHairCut && (
+          <>
+            <Text style={styles.label}>Category:</Text>
+            <View style={styles.optionsContainer}>
+              {hairCutOptions.map((option) => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.optionButton,
+                    category === option && styles.optionButtonSelected,
+                  ]}
+                  onPress={() => {
+                    setCategory(option);
+                    setStyle('');
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.optionButtonText,
+                      category === option && styles.optionButtonTextSelected,
+                    ]}
+                  >
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {category && (
+              <>
+                <Text style={styles.label}>Style:</Text>
+                <View style={styles.optionsContainer}>
+                  {haircutStyles[category].map((opt) => (
+                    <TouchableOpacity
+                      key={opt}
+                      style={[
+                        styles.optionButton,
+                        style === opt && styles.optionButtonSelected,
+                      ]}
+                      onPress={() => setStyle(opt)}
+                    >
+                      <Text
+                        style={[
+                          styles.optionButtonText,
+                          style === opt && styles.optionButtonTextSelected,
+                        ]}
+                      >
+                        {opt}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </>
+            )}
+          </>
+        )}
+
+        <Text style={styles.label}>Date:</Text>
+        <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.input}>
+          <Text>{date.toDateString()}</Text>
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={date}
+            mode="date"
+            display="default"
+            onChange={handleDateChange}
+          />
+        )}
+
+        <Text style={styles.label}>Select Time Slot:</Text>
+        <View style={styles.timeSlotContainer}>
+          {timeSlots.map((slot, index) => (
+            <TouchableOpacity
+              key={index}
               style={[
-                styles.timeSlotText,
-                selectedTime === slot && styles.selectedTimeSlotText,
+                styles.timeSlot,
+                selectedTime === slot && styles.selectedTimeSlot,
               ]}
+              onPress={() => setSelectedTime(slot)}
             >
-              {slot}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <Text
+                style={[
+                  styles.timeSlotText,
+                  selectedTime === slot && styles.selectedTimeSlotText,
+                ]}
+              >
+                {slot}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -223,8 +231,11 @@ export default BookingFormScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#fff',
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 60,
   },
   label: {
     marginTop: 15,
