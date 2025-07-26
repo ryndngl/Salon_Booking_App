@@ -8,12 +8,14 @@ const BookingSummaryScreen = () => {
 
   const bookingDetails = route.params?.bookingDetails || {
     name: 'Juan Dela Cruz',
-    serviceType: 'Hair Cut',
+    serviceName: 'Hair Cut',
     category: 'Men',
     style: 'Fade',
     date: '2025-07-25',
     time: '2:30 PM',
-    price: 350,
+    paymentmethod: 'Gcash, Cash on Service, Card',
+    price: 0,
+    status: 'pending',
   };
 
   const handleEdit = () => {
@@ -35,23 +37,23 @@ const BookingSummaryScreen = () => {
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>Service:</Text>
-          <Text style={styles.value}>{bookingDetails.serviceType}</Text>
+          <Text style={styles.label}>Service Name:</Text>
+          <Text style={styles.value}>{bookingDetails.serviceName}</Text>
         </View>
 
-        {bookingDetails.category && (
+        {bookingDetails.category ? (
           <View style={styles.row}>
             <Text style={styles.label}>Category:</Text>
             <Text style={styles.value}>{bookingDetails.category}</Text>
           </View>
-        )}
+        ) : null}
 
-        {bookingDetails.style && (
+        {bookingDetails.style ? (
           <View style={styles.row}>
             <Text style={styles.label}>Style:</Text>
             <Text style={styles.value}>{bookingDetails.style}</Text>
           </View>
-        )}
+        ) : null}
 
         <View style={styles.row}>
           <Text style={styles.label}>Date:</Text>
@@ -65,7 +67,7 @@ const BookingSummaryScreen = () => {
 
         <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#eee', marginTop: 10, paddingTop: 10 }]}>
           <Text style={styles.label}>Estimated Price:</Text>
-          <Text style={[styles.value, { fontWeight: 'bold', color: '#6a1b9a' }]}>₱{bookingDetails.price}</Text>
+          <Text style={[styles.value, { fontWeight: 'bold', color: '#333' }]}>₱{bookingDetails.price}</Text>
         </View>
       </View>
 
@@ -83,7 +85,6 @@ const BookingSummaryScreen = () => {
 };
 
 export default BookingSummaryScreen;
-
 
 const styles = StyleSheet.create({
   container: {
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     padding: 15,
-    backgroundColor: '#6a1b9a',
+    backgroundColor: '#4CAF50',
     borderRadius: 10,
     alignItems: 'center',
   },

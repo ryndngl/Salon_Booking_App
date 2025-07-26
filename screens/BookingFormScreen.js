@@ -12,13 +12,14 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useBooking } from '../context/BookingContext';
 
 const timeSlots = [
-  '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
+  '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM',
   '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM',
-  '01:00 PM', '01:30 PM', '02:00 PM', '02:30 PM',
-  '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM',
-  '05:00 PM',
+  '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM',
+  '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM',
+  '5:00 PM',
 ];
 
 const allServices = [
@@ -37,19 +38,25 @@ const haircutStyles = {
   Kids: ['Trim', 'Cute Bangs', 'Cartoon Style'],
 };
 
+// ... (unchanged imports)
 const BookingFormScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const passedPrice = route?.params?.stylePrice || 0;
-  const [price, setPrice] = useState(passedPrice);
+  const { addBooking } = useBooking();
+
   const passedServiceName = route?.params?.serviceName || '';
+  const passedStyle = route?.params?.styleName || '';
+  const passedPrice = route?.params?.stylePrice || 0;
+
   const [serviceName, setServiceName] = useState(passedServiceName);
   const [category, setCategory] = useState('');
-  const [style, setStyle] = useState('');
+  const [style, setStyle] = useState(passedStyle);
+  const [price, setPrice] = useState(passedPrice);
   const [name, setName] = useState('');
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedTime, setSelectedTime] = useState('');
+  const [nameError, setNameError] = useState('');
 
   const isHairCut = serviceName === 'Hair Cut';
   const comingFromCTA = passedServiceName === '';
@@ -59,30 +66,47 @@ const BookingFormScreen = () => {
     setShowDatePicker(false);
   };
 
+  const validateName = (inputName) => {
+    const nameRegex = /^[A-Za-z]{2,}(?:\s[A-Za-z]{2,})+$/;
+    if (!nameRegex.test(inputName.trim())) {
+      setNameError('Enter a valid full name (e.g. Juan Cruz)');
+    } else {
+      setNameError('');
+    }
+    setName(inputName);
+  };
+
+  const isFormValid =
+    name.trim() !== '' &&
+    nameError === '' &&
+    serviceName !== '' &&
+    date !== null &&
+    selectedTime !== '' &&
+    (!isHairCut || (category !== '' && style !== ''));
+
   const handleSubmit = () => {
-    if (!name || !date || !selectedTime || !serviceName) {
-      Alert.alert('Missing Info', 'Please fill out all required fields.');
+    if (!isFormValid) {
+      Alert.alert('Incomplete Form', 'Please complete all fields correctly.');
       return;
     }
 
     const bookingData = {
       name,
       serviceName,
-      category,
-      style,
+      category: isHairCut ? category : '',
+      style: style || '',
       date: date.toLocaleDateString(),
       time: selectedTime,
-      price, 
+      price,
+      status: 'pending',
     };
+        addBooking(bookingData);
 
-    navigation.navigate('BookingSummaryScreen', {bookingDetails: bookingData });
+    navigation.navigate('BookingSummaryScreen', { bookingDetails: bookingData });
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
@@ -90,11 +114,12 @@ const BookingFormScreen = () => {
       >
         <Text style={styles.label}>Name:</Text>
         <TextInput
-          style={styles.input}
-          placeholder="Enter your name"
+          style={[styles.input, name !== '' && nameError && styles.invalidInput]}
+          placeholder="Enter your full name"
           value={name}
-          onChangeText={setName}
+          onChangeText={validateName}
         />
+        {nameError !== '' && <Text style={styles.errorText}>{nameError}</Text>}
 
         {comingFromCTA && (
           <>
@@ -184,6 +209,15 @@ const BookingFormScreen = () => {
           </>
         )}
 
+        {!isHairCut && style ? (
+          <>
+            <Text style={styles.label}>Style:</Text>
+            <View style={styles.input}>
+              <Text>{style}</Text>
+            </View>
+          </>
+        ) : null}
+
         <Text style={styles.label}>Date:</Text>
         <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.input}>
           <Text>{date.toDateString()}</Text>
@@ -220,7 +254,11 @@ const BookingFormScreen = () => {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <TouchableOpacity
+          style={[styles.button, !isFormValid && { backgroundColor: '#ccc' }]}
+          onPress={handleSubmit}
+          disabled={!isFormValid}
+        >
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -251,6 +289,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
+  },
+  invalidInput: {
+    borderColor: 'red',
   },
   optionsContainer: {
     flexDirection: 'row',
@@ -296,8 +337,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
   },
   selectedTimeSlot: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+    backgroundColor: '#0080ff',
+    borderColor: '#0080ff',
   },
   timeSlotText: {
     color: '#333',
@@ -318,5 +359,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 5,
+    fontSize: 13,
+  },
+  value: {
+    fontSize: 16,
+    marginTop: 8,
+    backgroundColor: '#eee',
+    padding: 12,
+    borderRadius: 8,
   },
 });

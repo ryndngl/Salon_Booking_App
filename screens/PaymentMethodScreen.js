@@ -16,29 +16,24 @@ const PaymentMethodScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
 
-  // Get booking details from previous screen
-  const { service, date, time } = route.params;
+  const { bookingDetails } = route.params;
 
-  const handleConfirm = () => {
-    if (!selectedMethod) {
-      Alert.alert("Please select a payment method");
-      return;
-    }
+ const handleConfirm = () => {
+  if (!selectedMethod) {
+    Alert.alert("Please select a payment method");
+    return;
+  }
 
-    // Optional: set price based on service
-    const price = '₱350';
-
-    // Navigate to BookingScreen with booking details
-    navigation.navigate('BookingScreen', {
-      service,
-      date,
-      time,
-      paymentMethod: selectedMethod,
-      status: 'Pending',
-      price,
-    });
+  const updatedBooking = {
+    ...bookingDetails,
+    paymentMethod: selectedMethod,
+    status: 'Pending',
   };
 
+  navigation.navigate('BookingConfirmationScreen', {
+    bookingDetails: updatedBooking, // ✅ wrap in bookingDetails key
+  });
+};
   const paymentOptions = [
     {
       key: 'GCash',
@@ -89,7 +84,7 @@ const PaymentMethodScreen = () => {
         ))}
 
         <TouchableOpacity style={styles.button} onPress={handleConfirm}>
-          <Text style={styles.buttonText}>Confirm Booking</Text>
+          <Text style={styles.buttonText}>Confirm Payment Method</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -151,15 +146,11 @@ const styles = StyleSheet.create({
     color: '#2d3436',
   },
   button: {
-    backgroundColor: '#6c5ce7',
+    backgroundColor: '#4CAF50',
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: 'center',
     marginTop: 30,
-    shadowColor: '#6c5ce7',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
     elevation: 3,
   },
   buttonText: {

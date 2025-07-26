@@ -1,19 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  SafeAreaView,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useBooking } from '../context/BookingContext';
 
 const BookingScreen = () => {
   const navigation = useNavigation();
-  const route = useRoute();
-  const [booking, setBooking] = useState(null);
+  const { bookings } = useBooking();
 
-  useEffect(() => {
-    if (route.params) {
-      setBooking(route.params);
-    }
-  }, [route.params]);
+  // Filter lang yung may paymentMethod
+  const filteredBookings = bookings.filter(
+    (item) => item.paymentMethod && item.name && item.date && item.time
+  );
+
+  // Remove duplicates
+  const uniqueBookings = Array.from(
+    new Map(
+      filteredBookings.map((item) => [JSON.stringify(item), item])
+    ).values()
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,26 +34,42 @@ const BookingScreen = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Your Booking</Text>
+        <Text style={styles.headerTitle}>Your Bookings</Text>
       </View>
       <View style={styles.underline} />
 
-      {/* Content */}
-      {booking ? (
-        <View style={styles.card}>
-          <Text style={styles.confirmation}>✅ Booking Confirmed!</Text>
-          <Text style={styles.detail}>Service: {booking.service}</Text>
-          <Text style={styles.detail}>Date: {booking.date}</Text>
-          <Text style={styles.detail}>Time: {booking.time}</Text>
-          <Text style={styles.detail}>Payment Method: {booking.paymentMethod}</Text>
-          <Text style={styles.detail}>Status: {booking.status}</Text>
-          {booking.price && (
-            <Text style={styles.detail}>Total Price: {booking.price}</Text>
+      {/* Booking List */}
+      {uniqueBookings.length > 0 ? (
+        <FlatList
+          data={uniqueBookings}
+          keyExtractor={(item, index) => index.toString()}
+          contentContainerStyle={styles.list}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <Text style={styles.detail}>Name: {item.name}</Text>
+              <Text style={styles.detail}>Service: {item.serviceName}</Text>
+              {item.category && (
+                <Text style={styles.detail}>Category: {item.category}</Text>
+              )}
+              {item.style && (
+                <Text style={styles.detail}>Style: {item.style}</Text>
+              )}
+              <Text style={styles.detail}>Date: {item.date}</Text>
+              <Text style={styles.detail}>Time: {item.time}</Text>
+              <Text style={styles.detail}>
+                Payment Method: {item.paymentMethod}
+              </Text>
+              <Text style={styles.detail}>Price: ₱{item.price}</Text>
+              {item.totalprice && (
+                <Text style={styles.detail}>Total: ₱{item.totalprice}</Text>
+              )}
+              <Text style={styles.detail}>Status: {item.status}</Text>
+            </View>
           )}
-        </View>
+        />
       ) : (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>You have no booking information.</Text>
+          <Text style={styles.emptyText}>You have no bookings yet.</Text>
         </View>
       )}
     </SafeAreaView>
@@ -59,31 +87,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingTop: 60,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
     marginLeft: 10,
-    color: '#f56a79',
+    color: '#222',
   },
   underline: {
     height: 1,
     backgroundColor: '#ccc',
-    marginTop: 8,
+    marginTop: 10,
     marginBottom: 20,
+  },
+  list: {
+    paddingBottom: 40,
   },
   card: {
     backgroundColor: '#fcebed',
     borderRadius: 10,
     padding: 20,
     marginHorizontal: 20,
-  },
-  confirmation: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2ecc71',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   detail: {
     fontSize: 16,
