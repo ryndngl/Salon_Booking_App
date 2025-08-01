@@ -1,4 +1,5 @@
 // App.js
+import { DefaultTheme } from '@react-navigation/native';
 import * as WebBrowser from "expo-web-browser";
 WebBrowser.maybeCompleteAuthSession();
 
@@ -182,6 +183,7 @@ export default function App() {
               component={BookingConfirmationScreen}
               options={{ headerShown: false }}
             />
+
           </Stack.Navigator>
           <StatusBar style="auto" />
         </NavigationContainer>

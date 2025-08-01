@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -33,12 +33,21 @@ const allServices = [
 
 const hairCutOptions = ['Men', 'Women', 'Kids'];
 const haircutStyles = {
-  Men: ['Barber Cut', 'Fade', 'Undercut'],
-  Women: ['Layered Cut', 'Pixie', 'Bob'],
-  Kids: ['Trim', 'Cute Bangs', 'Cartoon Style'],
+  Men: ['Buzz Cut', 'High Fade', 'Crew Cut', 'Curtain Fringe', 'Fohawk', 'French Crop', 'Side Part', 'Taper Fade Mohawk', 'Textured-Comb-Over', 'Two Block', 'Army Cut', 'Burst Fade'],
+  
+   Women: [
+      'Boy Cut', 'Butterfly Cut', 'Fluffy Waves Bob', 'Layered Curls',
+      'Layered', 'Long Layered', 'Middy', 'Short', 'Soft and Pixie Cut',
+      'Textured Bob', 'V Cut', 'Wolf Cut Mallet', 'Wolf Cut', 'Bangs',
+      'Side swept',
+    ],
+ Kids: [
+      'Army Cut', 'Bowl Cut', 'Buzz Cut', 'Comb Over Cut', 'Pompadour',
+      'Fade', 'Fringe Fade', 'High Fade', 'Mid Fade', 'Mohawk',
+      'Side Part Cut',
+    ],
 };
 
-// ... (unchanged imports)
 const BookingFormScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -60,6 +69,20 @@ const BookingFormScreen = () => {
 
   const isHairCut = serviceName === 'Hair Cut';
   const comingFromCTA = passedServiceName === '';
+
+  // Auto-detect category based on style kung Hair Cut
+  useEffect(() => {
+  if (isHairCut && passedStyle) {
+    for (const cat of Object.keys(haircutStyles)) {
+      if (haircutStyles[cat].includes(passedStyle)) {
+        setCategory(cat);
+        setStyle(passedStyle);
+        break;
+      }
+    }
+  }
+}, [isHairCut, passedStyle]);
+
 
   const handleDateChange = (event, selectedDate) => {
     if (selectedDate) setDate(selectedDate);
@@ -100,8 +123,8 @@ const BookingFormScreen = () => {
       price,
       status: 'pending',
     };
-        addBooking(bookingData);
 
+    addBooking(bookingData);
     navigation.navigate('BookingSummaryScreen', { bookingDetails: bookingData });
   };
 
@@ -155,55 +178,67 @@ const BookingFormScreen = () => {
         {isHairCut && (
           <>
             <Text style={styles.label}>Category:</Text>
-            <View style={styles.optionsContainer}>
-              {hairCutOptions.map((option) => (
-                <TouchableOpacity
-                  key={option}
-                  style={[
-                    styles.optionButton,
-                    category === option && styles.optionButtonSelected,
-                  ]}
-                  onPress={() => {
-                    setCategory(option);
-                    setStyle('');
-                  }}
-                >
-                  <Text
+            {passedStyle ? (
+              <View style={styles.input}>
+                <Text>{category}</Text>
+              </View>
+            ) : (
+              <View style={styles.optionsContainer}>
+                {hairCutOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option}
                     style={[
-                      styles.optionButtonText,
-                      category === option && styles.optionButtonTextSelected,
+                      styles.optionButton,
+                      category === option && styles.optionButtonSelected,
                     ]}
+                    onPress={() => {
+                      setCategory(option);
+                      setStyle('');
+                    }}
                   >
-                    {option}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+                    <Text
+                      style={[
+                        styles.optionButtonText,
+                        category === option && styles.optionButtonTextSelected,
+                      ]}
+                    >
+                      {option}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
             {category && (
               <>
                 <Text style={styles.label}>Style:</Text>
-                <View style={styles.optionsContainer}>
-                  {haircutStyles[category].map((opt) => (
-                    <TouchableOpacity
-                      key={opt}
-                      style={[
-                        styles.optionButton,
-                        style === opt && styles.optionButtonSelected,
-                      ]}
-                      onPress={() => setStyle(opt)}
-                    >
-                      <Text
+                {passedStyle ? (
+                  <View style={styles.input}>
+                    <Text>{style}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.optionsContainer}>
+                    {haircutStyles[category].map((opt) => (
+                      <TouchableOpacity
+                        key={opt}
                         style={[
-                          styles.optionButtonText,
-                          style === opt && styles.optionButtonTextSelected,
+                          styles.optionButton,
+                          style === opt && styles.optionButtonSelected,
                         ]}
+                        onPress={() => setStyle(opt)}
                       >
-                        {opt}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                        <Text
+                          style={[
+                            styles.optionButtonText,
+                            style === opt && styles.optionButtonTextSelected,
+                          ]}
+                        >
+                          {opt}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
               </>
             )}
           </>
@@ -310,8 +345,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   optionButtonSelected: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+    backgroundColor: '#0080ff',
+    borderColor: '#0080ff',
   },
   optionButtonText: {
     color: '#333',
@@ -364,12 +399,5 @@ const styles = StyleSheet.create({
     color: 'red',
     marginTop: 5,
     fontSize: 13,
-  },
-  value: {
-    fontSize: 16,
-    marginTop: 8,
-    backgroundColor: '#eee',
-    padding: 12,
-    borderRadius: 8,
   },
 });
