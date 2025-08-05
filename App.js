@@ -21,9 +21,14 @@ LogBox.ignoreLogs([
 
 // Firebase
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import {
+  initializeAuth,
+  getReactNativePersistence,
+  getAuth,
+  onAuthStateChanged,
+} from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBAS409-zb6ET8ZQhSztD9pJNfHb3d5Mpk",
   authDomain: "salon-booking-app-2d85f.firebaseapp.com",
@@ -35,7 +40,15 @@ const firebaseConfig = {
 
 const app =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-const auth = getAuth(app);
+
+let auth;
+try {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} catch (err) {
+  auth = getAuth(app);
+}
 
 // Navigation
 import "react-native-screens";

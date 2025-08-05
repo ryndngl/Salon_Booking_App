@@ -194,6 +194,13 @@ export const services = [
         image: require ('../assets/Haircut/Women/Side swept.webp'),
       },  
       {
+        id: 14,
+        name: 'Balayage',
+        category: 'Women',
+        price: 100,
+        image: require ('../assets/Haircut/Women/Balayage.webp'),
+      },  
+      {
         id: 1,
         name: 'Army Cut',
         category: 'Kids',
@@ -278,7 +285,7 @@ export const services = [
     id: 2,
     name: 'Hair Color',
     styles: [
-           {
+      {
         id: 1,
         name: 'Blonde',
         price: 180,
@@ -347,45 +354,51 @@ export const services = [
     styles: [
       {
         id: 1,
-        name: 'Hot Oil Treatment',
+        name: 'Bleaching',
         price: 200,
-        image: 'https://source.unsplash.com/featured/?hot+oil+treatment',
+        image: require('../assets/Hair Treatment/Bleaching.webp'),
       },
       {
         id: 2,
-        name: 'Keratin Treatment',
-        price: 400,
-        image: 'https://source.unsplash.com/featured/?keratin',
+        name: 'Brazillian',
+        price: 700,
+        image: require('../assets/Hair Treatment/Brazillian.webp'),
       },
       {
         id: 3,
-        name: 'Hair Spa',
-        price: 300,
-        image: 'https://source.unsplash.com/featured/?hair+spa',
+        name: 'Cellophane',
+        price: 500,
+        image: require('../assets/Hair Treatment/Cellophane.webp'),
       },
       {
         id: 4,
-        name: 'Scalp Treatment',
-        price: 350,
-        image: 'https://source.unsplash.com/featured/?scalp+treatment',
+        name: 'Conditioning',
+        price: 150,
+        image: require('../assets/Hair Treatment/Conditioning.webp'),
       },
       {
         id: 5,
-        name: 'Protein Treatment',
-        price: 300,
-        image: 'https://source.unsplash.com/featured/?protein+hair',
+        name: 'Cystiene',
+        price: 1500,
+        image: require('../assets/Hair Treatment/Cystiene.webp'),
       },
       {
         id: 6,
-        name: 'Hair Mask',
-        price: 250,
-        image: 'https://source.unsplash.com/featured/?hair+mask',
+        name: 'Hair Botox',
+        price: 1000,
+        image: require('../assets/Hair Treatment/Hair Botox.webp'),
       },
-       {
+      {
         id: 7,
-        name: 'Hair Mask',
-        price: 250,
-        image: 'https://source.unsplash.com/featured/?hair+mask',
+        name: 'Hair Spa',
+        price: 300,
+        image: require('../assets/Hair Treatment/Hair Spa.webp'),
+      },
+      {
+        id: 8,
+        name: 'Keratin',
+        price: 500,
+        image: require('../assets/Hair Treatment/Keratin.webp'),
       },
     ],
   },
@@ -395,48 +408,38 @@ export const services = [
     styles: [
       {
         id: 1,
-        name: 'Hair Rebond',
-        price: 1000,
-        image: 'https://source.unsplash.com/featured/?rebond',
+        name: 'Rebond with Botox',
+        price: 2000,
+        image: require ('../assets/Rebond/Rebond with Botox.webp'),
       },
       {
         id: 2,
-        name: 'Digital Perm',
-        price: 1200,
-        image: 'https://source.unsplash.com/featured/?digital+perm',
+        name: 'Rebond with Brazillian',
+        price: 1500,
+        image: require ('../assets/Rebond/Rebond with Brazillian.webp'),
       },
       {
         id: 3,
-        name: 'Brazilian Blowout',
+        name: 'Rebond with Cellophane',
         price: 1300,
-        image: 'https://source.unsplash.com/featured/?brazilian+blowout',
+        image: require ('../assets/Rebond/Rebond with Cellophane.webp'),
       },
       {
         id: 4,
-        name: 'Straightening',
-        price: 950,
-        image: 'https://source.unsplash.com/featured/?hair+straightening',
+        name: 'Rebond with Color',
+        price: 2500,
+        image: require ('../assets/Rebond/Rebond with Color.webp'),
       },
-      {
+       {
         id: 5,
-        name: 'Cold Perm',
-        price: 1100,
-        image: 'https://source.unsplash.com/featured/?perm+hair',
-      },
-      {
-        id: 6,
-        name: 'Volume Rebond',
-        price: 1400,
-        image: 'https://source.unsplash.com/featured/?volume+rebond',
-      },
-      {
-        id: 7,
-        name: 'Volume Rebond',
-        price: 1400,
-        image: 'https://source.unsplash.com/featured/?volume+rebond',
+        name: 'Rebond with Keratin',
+        price: 1000,
+        image: require ('../assets/Rebond/Rebond with Keratin.webp'),
       },
     ],
   },
+
+
   {
     id: 5,
     name: 'Nail Care',
@@ -486,51 +489,18 @@ export const services = [
     ],
   },
   {
-    id: 6,
-    name: 'Foot Spa',
-    styles: [
-      {
-        id: 1,
-        name: 'Basic Foot Spa',
-        price: 250,
-        image: 'https://source.unsplash.com/featured/?foot+spa',
-      },
-      {
-        id: 2,
-        name: 'Deluxe Foot Spa',
-        price: 350,
-        image: 'https://source.unsplash.com/featured/?spa+feet',
-      },
-      {
-        id: 3,
-        name: 'Aromatherapy Foot Spa',
-        price: 400,
-        image: 'https://source.unsplash.com/featured/?aroma+spa',
-      },
-      {
-        id: 4,
-        name: 'Foot Scrub',
-        price: 300,
-        image: 'https://source.unsplash.com/featured/?foot+scrub',
-      },
-      {
-        id: 5,
-        name: 'Callus Treatment',
-        price: 320,
-        image: 'https://source.unsplash.com/featured/?callus+removal',
-      },
-      {
-        id: 6,
-        name: 'Hydrating Foot Spa',
-        price: 370,
-        image: 'https://source.unsplash.com/featured/?hydrating+spa',
-      },
-      {
-        id: 6,
-        name: 'Hydrating Foot Spa',
-        price: 370,
-        image: 'https://source.unsplash.com/featured/?hydrating+spa',
-      },
-    ],
-  },
+  id: 6,
+  name: 'Foot Spa',
+  styles: [
+    {
+      name: 'Foot Spa Package',
+      price: 300,
+      images: [
+        require('../assets/Foot Spa/Foot Spa.webp'),
+        require('../assets/Foot Spa/Manicure.webp'),
+        require('../assets/Foot Spa/Pedicure.webp'),
+      ],
+    },
+  ],
+}
 ];

@@ -26,15 +26,29 @@ const ServiceDetailScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  const isHairCut = service.name.trim().toLowerCase() === 'hair cut';
+ const isHairCut = service.name.trim().toLowerCase() === 'hair cut';
 
-  const filteredStyles = isHairCut
-    ? service.styles.filter((style) => style.category === selectedCategory)
-    : service.styles.filter((style) => !style.category);
+const filteredStyles = service.styles.filter((style) => {
+  if (isHairCut) {
+    return style.category === selectedCategory;
+  }
+  return true; // show all styles for non-haircut services
+});
+
+console.log('Filtered styles:', filteredStyles);
+
 
   const openImageModal = (image) => {
     setSelectedImage(image);
     setModalVisible(true);
+  };
+
+  const goToBooking = (style) => {
+    navigation.navigate('BookingFormScreen', {
+      serviceName: service.name,
+      styleName: style.name,
+      stylePrice: style.price,
+    });
   };
 
   return (
@@ -66,41 +80,57 @@ const ServiceDetailScreen = () => {
           </View>
         )}
 
-        <View style={styles.grid}>
-          {filteredStyles.map((style, index) => (
-            <View key={index} style={styles.card}>
-              <TouchableOpacity onPress={() => openImageModal(style.image)}>
-                <View style={styles.imageWrapper}>
-                  <Image source={style.image} style={styles.image} />
-                </View>
+      <View style={styles.grid}>
+  {filteredStyles.map((style, index) => {
+    const hasMultipleImages = Array.isArray(style.images);
+
+    return (
+      <View
+        key={index}
+        style={hasMultipleImages ? styles.footSpaCard : styles.card}
+      >
+        {hasMultipleImages ? (
+          <View style={styles.footSpaImagesContainer}>
+            {style.images.map((img, idx) => (
+              <TouchableOpacity key={idx} onPress={() => openImageModal(img)}>
+                <Image source={img} style={styles.footSpaImage} />
               </TouchableOpacity>
-
-              <View style={styles.cardContent}>
-                <Text style={styles.styleName}>{style.name}</Text>
-                <Text style={styles.price}>₱{style.price}</Text>
-
-                <TouchableOpacity
-                  style={styles.bookNowButton}
-                  onPress={() =>
-                    navigation.navigate('BookingFormScreen', {
-                      serviceName: service.name,
-                      styleName: style.name,
-                      stylePrice: style.price,
-                    })
-                  }
-                >
-                  <Text style={styles.bookNowButtonText}>Book Now</Text>
-                </TouchableOpacity>
-              </View>
+            ))}
+          </View>
+        ) : (
+          <TouchableOpacity onPress={() => openImageModal(style.image)}>
+            <View style={styles.imageWrapper}>
+              <Image source={style.image} style={styles.image} />
             </View>
-          ))}
+          </TouchableOpacity>
+        )}
+
+        <View style={styles.cardContent}>
+          <Text style={styles.styleName}>{style.name}</Text>
+          {/* Optional subtitle for Foot Spa */}
+          {hasMultipleImages && (
+            <Text style={styles.footSpaSubtitle}>with Manicure and Pedicure</Text>
+          )}
+          <Text style={styles.price}>₱{style.price}</Text>
+
+          <TouchableOpacity
+            style={styles.bookNowButton}
+            onPress={() => goToBooking(style)}
+          >
+            <Text style={styles.bookNowButtonText}>Book Now</Text>
+          </TouchableOpacity>
         </View>
+      </View>
+    );
+  })}
+</View>
+
       </ScrollView>
 
       {/* Fullscreen Image Modal */}
       <Modal
         visible={modalVisible}
-        transparent={true}
+        transparent
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
@@ -155,34 +185,28 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   grid: {
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  justifyContent: 'space-between',
-  paddingBottom: 10,
-},
-
-card: {
-  backgroundColor: '#ffffff',
-  borderRadius: 16,
-  marginBottom: 20,
-  width: cardWidth,
-  overflow: 'hidden',
-
-  // iOS shadow
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.1,
-  shadowRadius: 6,
-
-  // Android elevation
-  elevation: 5,
-  borderWidth: 0.5,
-  borderColor: '#e5e5e5',
-  transform: [{ scale: 1 }],
-},
-   imageWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingBottom: 10,
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    marginBottom: 20,
+    width: cardWidth,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5,
+    borderWidth: 0.5,
+    borderColor: '#e5e5e5',
+  },
+  imageWrapper: {
     width: '100%',
-    aspectRatio: 1, // Keep the image square and responsive
+    aspectRatio: 1,
     overflow: 'hidden',
   },
   image: {
@@ -194,46 +218,42 @@ card: {
     padding: 10,
     alignItems: 'center',
   },
- styleName: {
-  fontSize: 15,
-  fontWeight: '600',
-  color: '#1a1a1a',
-  marginTop: 8,
-  textAlign: 'center',
-  letterSpacing: 0.3,
-},
-
-price: {
-  fontSize: 14,
-  fontWeight: '600',
-  color: '#d10000',
-  marginTop: 4,
-  textAlign: 'center',
-},
-
-bookNowButton: {
-  marginTop: 12,
-  backgroundColor: '#007d3f',
-  paddingVertical: 10,
-  paddingHorizontal: 20,
-  borderRadius: 100,
-  alignItems: 'center',
-  width: '100%',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.2,
-  shadowRadius: 4,
-  elevation: 3,
-},
-
-bookNowButtonText: {
-  color: '#fff',
-  fontSize: 14,
-  fontWeight: 'bold',
-  letterSpacing: 0.5,
-  textTransform: 'uppercase',
-},
-
+  styleName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginTop: 8,
+    textAlign: 'center',
+    letterSpacing: 0.3,
+  },
+  price: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#d10000',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  bookNowButton: {
+    marginTop: 12,
+    backgroundColor: '#007d3f',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 100,
+    alignItems: 'center',
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  bookNowButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
   // Modal styles
   modalOverlay: {
     flex: 1,
@@ -244,5 +264,43 @@ bookNowButtonText: {
   fullscreenImage: {
     width: '100%',
     height: '100%',
+  },
+  // Custom Foot Spa Card styles
+  footSpaCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 20,
+    width: '100%',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    borderWidth: 0.5,
+    borderColor: '#e5e5e5',
+  },
+  footSpaImagesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  footSpaImage: {
+    width: (screenWidth - 64) / 3,
+    height: 100,
+    borderRadius: 8,
+    resizeMode: 'cover',
+  },
+  footSpaTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'center',
+  },
+  footSpaSubtitle: {
+    fontSize: 14,
+    color: '#555',
+    marginTop: 4,
+    textAlign: 'center',
   },
 });
