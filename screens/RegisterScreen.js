@@ -73,7 +73,6 @@ export default function RegisterScreen({ navigation }) {
       >
         <View style={styles.overlay}>
           <View style={styles.card}>
-            <Text style={styles.headerText}>Join Our Salon Community!</Text>
             <Text style={styles.title}>Create Your Account</Text>
 
             {/* ✅ Full Name Input */}
@@ -163,9 +162,6 @@ export default function RegisterScreen({ navigation }) {
   );
 }
 
-// ➡ Styles are unchanged, no need to modify your existing style definitions
-// (you already have `styles.input` which works for Full Name too)
-
 
 const styles = StyleSheet.create({
   container: {
@@ -193,30 +189,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 20, // More rounded corners for a softer look
     padding: 30,
-    shadowColor: '#000', // Shadow for depth
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 15, // Android shadow
+    borderColor: '#666',
+    elevation: 2, // Android shadow
     alignItems: 'center',
   },
   headerText: {
     fontSize: 24,
     fontWeight: '600',
     marginBottom: 5,
-    color: '#880E4F', // Darker pink/maroon for salon theme
+    color: '#880E4F', 
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 30,
-    color: '#4A148C', // Deep purple for elegance
+    color: '#d13f3f', 
     textAlign: 'center',
   },
   input: {
     width: '100%',
     height: 55, // Slightly taller input fields
-    borderColor: '#E0BBE4', // Light purple border
+    borderColor: '#666', // Light purple border
     borderWidth: 1,
     borderRadius: 10, // Rounded input fields
     paddingHorizontal: 20,
@@ -231,7 +224,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     height: 55,
-    borderColor: '#E0BBE4',
+    borderColor: '#666',
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 15,
@@ -257,17 +250,14 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     height: 55,
-    backgroundColor: '#FF80AB', // Vibrant pink button
+    backgroundColor: '#4CAF50', // Vibrant pink button
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10, // Added margin top for button
     marginBottom: 25,
-    shadowColor: '#FF80AB', // Pink shadow for button
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 8,
+    borderColor: '#d13f3f', 
+    elevation: 3,
   },
   buttonText: {
     color: '#fff',
@@ -281,7 +271,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   loginLink: {
-    color: '#4A148C', // Deep purple for the link
+    color: '#d13f3f', // Deep purple for the link
     fontWeight: 'bold',
     textDecorationLine: 'underline',
   },

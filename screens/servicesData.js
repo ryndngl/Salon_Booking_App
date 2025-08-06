@@ -446,48 +446,26 @@ export const services = [
     styles: [
       {
         id: 1,
-        name: 'Manicure',
-        price: 100,
-        image: 'https://source.unsplash.com/featured/?manicure',
-      },
-      {
-        id: 2,
-        name: 'Pedicure',
-        price: 120,
-        image: 'https://source.unsplash.com/featured/?pedicure',
-      },
-      {
-        id: 3,
-        name: 'Nail Art',
-        price: 200,
-        image: 'https://source.unsplash.com/featured/?nail+art',
-      },
-      {
-        id: 4,
         name: 'Gel Polish',
-        price: 180,
-        image: 'https://source.unsplash.com/featured/?gel+nails',
+        price: 500,
+        image: require('../assets/Nails/Gel Polish.webp'),
       },
-      {
-        id: 5,
-        name: 'Acrylic Nails',
-        price: 250,
-        image: 'https://source.unsplash.com/featured/?acrylic+nails',
+ {
+        id: 2,
+        name: 'Removing Gel',
+        price: 150,
+        image: require('../assets/Nails/Removing Gel.webp'),
       },
-      {
-        id: 6,
-        name: 'Nail Extension',
-        price: 300,
-        image: 'https://source.unsplash.com/featured/?nail+extension',
-      },
-      {
-        id: 7,
-        name: 'Nail Extension',
-        price: 300,
-        image: 'https://source.unsplash.com/featured/?nail+extension',
+       {
+        id: 3,
+        name: 'Soft Gel',
+        price: 800,
+        image: require('../assets/Nails/Soft Gel.webp'),
       },
     ],
   },
+
+
   {
   id: 6,
   name: 'Foot Spa',

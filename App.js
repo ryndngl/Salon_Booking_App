@@ -69,6 +69,7 @@ import NotificationScreen from './screens/NotificationScreen';
 import BookingSummaryScreen from './screens/BookingSummaryScreen';
 import BookingConfirmationScreen from './screens/BookingConfirmationScreen';
 import { BookingProvider } from "./context/BookingContext";
+//import DesignSelectionScreen from './screens/DesignSelectionScreen';
 
 const Stack = createNativeStackNavigator();
 const { width, height } = Dimensions.get("window");
@@ -196,7 +197,7 @@ export default function App() {
               component={BookingConfirmationScreen}
               options={{ headerShown: false }}
             />
-
+          
           </Stack.Navigator>
           <StatusBar style="auto" />
         </NavigationContainer>

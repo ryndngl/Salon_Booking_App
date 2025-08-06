@@ -1,68 +1,61 @@
-import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+  StatusBar,
+  ScrollView,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
-import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
 
+const { width, height } = Dimensions.get('window');
 
 const GetStartedScreen = () => {
   const navigation = useNavigation();
 
   const handleGetStarted = () => {
-    navigation.replace('Login'); // 🔁 replace para hindi na makabalik sa get started
+    navigation.replace('Login');
   };
+
   return (
-    <LinearGradient
-      colors={['#f8bbd0', '#ce93d8', '#ba68c8']}
-      style={styles.container}
-    >
-      <View style={styles.content}>
-        <Animatable.View animation="fadeInDown" delay={200} duration={1200}>
-          <MaterialCommunityIcons
-            name="face-woman-shimmer"
-            size={90}
-            color="#fff"
-            style={styles.icon}
-          />
+    <View style={styles.container}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Elegant Header Text */}
+        <Animatable.View animation="fadeInDown" delay={200} style={styles.headerWrapper}>
+          <Text style={styles.brand}>Van’s Glow Up Salon</Text>
+          <Text style={styles.tagline}>Beauty made personal</Text>
         </Animatable.View>
 
-        <Animatable.Text
+        {/* Main Image */}
+        <Animatable.Image
           animation="fadeInUp"
-          delay={600}
-          duration={1200}
-          style={styles.title}
-        >
-          Van's Glow-Up Salon
-        </Animatable.Text>
+          delay={400}
+          source={require('../assets/Salon Banner.webp')}
+          style={styles.image}
+          resizeMode="contain"
+        />
 
-        <ShimmerPlaceholder
-          visible={true}
-          style={styles.subtitleShimmer}
-          shimmerStyle={{ borderRadius: 10 }}
-        >
-          <Animatable.Text
-            animation="fadeIn"
-            delay={1000}
-            duration={1200}
-            style={styles.subtitle}
-          >
-            Glow with Confidence
-          </Animatable.Text>
-        </ShimmerPlaceholder>
+        {/* Description */}
+        <Animatable.View animation="fadeInUp" delay={600} style={styles.textContainer}>
+          <Text style={styles.subtitle}>
+            Step into elegance, where every detail is crafted for your glow.
+          </Text>
+        </Animatable.View>
 
-        <Animatable.View animation="bounceIn" delay={1500}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.replace('Login')}
-            activeOpacity={0.8}
-          >
+        {/* Get Started Button */}
+        <Animatable.View animation="bounceInUp" delay={800} style={styles.buttonWrapper}>
+          <TouchableOpacity style={styles.button} onPress={handleGetStarted}>
             <Text style={styles.buttonText}>Get Started</Text>
           </TouchableOpacity>
         </Animatable.View>
-      </View>
-    </LinearGradient>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -71,47 +64,61 @@ export default GetStartedScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#fff',
   },
-  content: {
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 50,
     paddingHorizontal: 30,
   },
-  icon: {
-    marginBottom: 30,
+  headerWrapper: {
+    alignItems: 'center',
+    marginBottom: 20,
   },
-  title: {
-    fontSize: 28,
+  brand: {
+    fontSize: 34,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#d13f3f',
     textAlign: 'center',
-    marginBottom: 10,
+    letterSpacing: 1,
+  },
+  tagline: {
+    fontSize: 16,
+    color: '#d13f3f',
+    textAlign: 'center',
+    marginTop: 5,
+    fontStyle: 'italic',
+  },
+  image: {
+    width: width * 0.9,
+    height: height * 0.45,
+    marginVertical: 20,
+  },
+  textContainer: {
+    marginTop: 10,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#fce4ec',
+    fontSize: 15,
+    color: '#d13f3f',
     textAlign: 'center',
-    marginBottom: 50,
+    lineHeight: 22,
+    paddingHorizontal: 10,
   },
-  subtitleShimmer: {
-    width: 200,
-    height: 20,
-    marginBottom: 50,
+  buttonWrapper: {
+    marginTop: 40,
   },
   button: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#d13f3f',
     paddingVertical: 14,
-    paddingHorizontal: 36,
+    paddingHorizontal: 60,
     borderRadius: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    elevation: 3,
   },
   buttonText: {
-    color: '#ba68c8',
-    fontSize: 16,
+    color: '#fff',
+    fontSize: 17,
     fontWeight: 'bold',
   },
 });

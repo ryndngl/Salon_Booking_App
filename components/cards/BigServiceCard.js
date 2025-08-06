@@ -11,7 +11,13 @@ import {
 const screenWidth = Dimensions.get("window").width;
 const cardWidth = (screenWidth - 48) / 2;
 
-const BigServiceCard = ({ styleData, onImagePress, onBookPress }) => {
+const BigServiceCard = ({
+  styleData,
+  onImagePress,
+  onBookPress,
+  isSoftGel,
+  onAddDesignPress,
+}) => {
   return (
     <View style={styles.card}>
       {/* Image clickable for modal */}
@@ -34,6 +40,16 @@ const BigServiceCard = ({ styleData, onImagePress, onBookPress }) => {
         </Text>
         <Text style={styles.price}>₱{styleData.price}</Text>
 
+        {/* Show + Design button only for Soft Gel */}
+        {isSoftGel && (
+          <TouchableOpacity
+            style={styles.addDesignButton}
+            onPress={onAddDesignPress}
+          >
+            <Text style={styles.addDesignText}>+ Design</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Book Now button */}
         <TouchableOpacity style={styles.bookNowButton} onPress={onBookPress}>
           <Text style={styles.bookNowButtonText}>Book Now</Text>
@@ -42,6 +58,7 @@ const BigServiceCard = ({ styleData, onImagePress, onBookPress }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
@@ -87,6 +104,25 @@ const styles = StyleSheet.create({
     color: "#d10000",
     marginTop: 4,
     textAlign: "center",
+  },
+  addDesignButton: {
+    marginTop: 10,
+    backgroundColor: "#f1c40f",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 50,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  addDesignText: {
+    color: "#1a1a1a",
+    fontSize: 13,
+    fontWeight: "600",
+    letterSpacing: 0.3,
   },
   bookNowButton: {
     marginTop: 12,

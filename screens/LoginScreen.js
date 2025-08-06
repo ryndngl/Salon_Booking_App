@@ -1,4 +1,4 @@
-// screens/LoginScreen.js (Google Sign-In Removed)
+// screens/LoginScreen.js 
 import { useState } from "react";
 import {
   StyleSheet,
@@ -134,7 +134,6 @@ export default function LoginScreen({ navigation }) {
       >
         <View style={styles.overlay}>
           <View style={styles.card}>
-            <Text style={styles.headerText}>Welcome Back!</Text>
             <Text style={styles.title}>Login to Your Salon Account</Text>
 
             <TextInput
@@ -301,11 +300,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 30,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 15,
+    borderColor: '#666',
+    elevation: 2,
     alignItems: "center",
   },
   headerText: {
@@ -318,13 +314,13 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 30,
-    color: "#4A148C",
+    color: "#d13f3f",
     textAlign: "center",
   },
   input: {
     width: "100%",
     height: 55,
-    borderColor: "#E0BBE4",
+    borderColor: "#666",
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 20,
@@ -338,7 +334,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     height: 55,
-    borderColor: "#E0BBE4",
+    borderColor: "#666",
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 15,
@@ -365,23 +361,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   forgotPasswordText: {
-    color: "#4A148C",
+    color: "#d13f3f",
     fontSize: 14,
     textDecorationLine: "underline",
   },
   button: {
     width: "100%",
     height: 55,
-    backgroundColor: "#FF80AB",
+    backgroundColor: "#4CAF50",
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 25,
-    shadowColor: "#FF80AB",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 8,
+    borderColor: "#4CAF50",
+    elevation: 3,
   },
   buttonText: {
     color: "#fff",
@@ -413,7 +406,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   registerLink: {
-    color: "#4A148C",
+    color: "#d13f3f",
     fontWeight: "bold",
     textDecorationLine: "underline",
   },
@@ -441,7 +434,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 15,
-    color: "#4A148C",
+    color: "#d13f3f",
   },
   modalDescription: {
     fontSize: 15,
@@ -452,16 +445,13 @@ const styles = StyleSheet.create({
   modalButton: {
     width: "100%",
     height: 50,
-    backgroundColor: "#FF80AB",
+    backgroundColor: "#4CAF50",
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 10,
-    shadowColor: "#FF80AB",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
+    borderColor: "#4CAF50",
+    elevation: 2,
   },
   modalCancelButton: {
     backgroundColor: "#E0E0E0",
@@ -471,7 +461,7 @@ const styles = StyleSheet.create({
     borderColor: "#CCC",
   },
   modalCancelButtonText: {
-    color: "#4A148C",
+    color: "#666",
     fontSize: 17,
     fontWeight: "bold",
   },
@@ -485,13 +475,9 @@ const styles = StyleSheet.create({
   backgroundColor: "#FAFAFA",
   paddingVertical: 38,
   paddingHorizontal: 32,
-  borderRadius: 30,
+  borderRadius: 15,
   alignItems: "center",
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 12 },
-  shadowOpacity: 0.08,
-  shadowRadius: 20,
-  elevation: 14,
+  elevation: 2,
   borderWidth: 1,
   borderColor: "#EEE",
 },
@@ -500,7 +486,7 @@ successText: {
   fontSize: 24,
   fontWeight: "600",
   marginTop: 15,
-  color: "#2E2E2E",
+  color: "#006600",
   textAlign: "center",
   letterSpacing: 0.5,
 },
