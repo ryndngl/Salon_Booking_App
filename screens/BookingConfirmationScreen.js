@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   cancelBtn: {
-    backgroundColor: '#ff0000',
+    backgroundColor: '#ff9900',
     padding: 10,
     borderRadius: 6,
     minWidth: 100,

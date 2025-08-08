@@ -1,5 +1,5 @@
 // screens/LoginScreen.js 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -14,6 +14,8 @@ import {
   ActivityIndicator,
   Modal,
   Pressable,
+  Animated,
+  Easing,
 } from "react-native";
 
 // Firebase imports
@@ -33,6 +35,31 @@ export default function LoginScreen({ navigation }) {
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [isSendingPasswordReset, setIsSendingPasswordReset] = useState(false);
   const [loginSuccessVisible, setLoginSuccessVisible] = useState(false);
+
+  // Animation refs
+  const scaleAnim = useRef(new Animated.Value(0.5)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (loginSuccessVisible) {
+      Animated.parallel([
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 300,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      scaleAnim.setValue(0.5);
+      fadeAnim.setValue(0);
+    }
+  }, [loginSuccessVisible]);
 
   const auth = getAuth();
 
@@ -198,7 +225,7 @@ export default function LoginScreen({ navigation }) {
               disabled={anyLoading}
             >
               <Text style={styles.registerText}>
-                Don't have an account?{' '}
+                Don't have an account?{" "}
                 <Text style={styles.registerLink}>Register here.</Text>
               </Text>
             </TouchableOpacity>
@@ -257,28 +284,30 @@ export default function LoginScreen({ navigation }) {
         </Pressable>
       </Modal>
 
-      {/* Login Success Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={loginSuccessVisible}
-      >
-       <View style={styles.successModalContainer}>
-         <View style={styles.successCard}>
-       <Text style={styles.successText}>Login Successful</Text>
-       <Text style={styles.successSubText}>Redirecting...</Text>
-  </View>
-</View>
+      {/* Login Success Modal with Animation */}
+      <Modal animationType="none" transparent={true} visible={loginSuccessVisible}>
+        <View style={styles.successModalContainer}>
+          <Animated.View
+            style={[
+              styles.successCard,
+              { transform: [{ scale: scaleAnim }], opacity: fadeAnim },
+            ]}
+          >
+            <Image
+              source={{ uri: "https://img.icons8.com/color/96/ok--v1.png" }}
+              style={{ width: 60, height: 60 }}
+            />
+            <Text style={styles.successText}>Login Successful</Text>
+            <Text style={styles.successSubText}>Redirecting...</Text>
+          </Animated.View>
+        </View>
       </Modal>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FCE4EC",
-  },
+  container: { flex: 1, backgroundColor: "#FCE4EC" },
   backgroundImage: {
     flex: 1,
     justifyContent: "center",
@@ -300,15 +329,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 30,
-    borderColor: '#666',
+    borderColor: "#666",
     elevation: 2,
     alignItems: "center",
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: "600",
-    marginBottom: 5,
-    color: "#880E4F",
   },
   title: {
     fontSize: 28,
@@ -348,18 +371,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
-  togglePasswordButton: {
-    padding: 5,
-  },
-  togglePasswordIcon: {
-    width: 24,
-    height: 24,
-    tintColor: "#888",
-  },
-  forgotPasswordButton: {
-    alignSelf: "flex-end",
-    marginBottom: 20,
-  },
+  togglePasswordButton: { padding: 5 },
+  togglePasswordIcon: { width: 24, height: 24, tintColor: "#888" },
+  forgotPasswordButton: { alignSelf: "flex-end", marginBottom: 20 },
   forgotPasswordText: {
     color: "#d13f3f",
     fontSize: 14,
@@ -382,40 +396,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     letterSpacing: 0.5,
   },
-  separatorContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-    marginBottom: 25,
-  },
-  separatorLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#ddd",
-  },
-  separatorText: {
-    marginHorizontal: 10,
-    color: "#888",
-    fontSize: 16,
-    fontWeight: "500",
-  },
-
-  registerText: {
-    color: "#666",
-    fontSize: 15,
-    marginTop: 10,
-  },
+  registerText: { color: "#666", fontSize: 15, marginTop: 10 },
   registerLink: {
     color: "#d13f3f",
     fontWeight: "bold",
     textDecorationLine: "underline",
   },
-  // Styles for the Forgot Password Modal
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Dim background
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     width: "85%",
@@ -469,34 +460,31 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   successCard: {
-  backgroundColor: "#FAFAFA",
-  paddingVertical: 38,
-  paddingHorizontal: 32,
-  borderRadius: 15,
-  alignItems: "center",
-  elevation: 2,
-  borderWidth: 1,
-  borderColor: "#EEE",
-},
-
-successText: {
-  fontSize: 24,
-  fontWeight: "600",
-  marginTop: 15,
-  color: "#006600",
-  textAlign: "center",
-  letterSpacing: 0.5,
-},
-
-successSubText: {
-  fontSize: 15,
-  color: "#888",
-  marginTop: 8,
-  textAlign: "center",
-  lineHeight: 22,
-},
-
+    backgroundColor: "#FAFAFA",
+    paddingVertical: 38,
+    paddingHorizontal: 32,
+    borderRadius: 15,
+    alignItems: "center",
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "#EEE",
+  },
+  successText: {
+    fontSize: 24,
+    fontWeight: "600",
+    marginTop: 15,
+    color: "#006600",
+    textAlign: "center",
+    letterSpacing: 0.5,
+  },
+  successSubText: {
+    fontSize: 15,
+    color: "#888",
+    marginTop: 8,
+    textAlign: "center",
+    lineHeight: 22,
+  },
 });
