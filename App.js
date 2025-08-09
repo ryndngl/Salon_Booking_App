@@ -1,5 +1,5 @@
 // App.js
-import { DefaultTheme } from '@react-navigation/native';
+import { DefaultTheme, DarkTheme } from '@react-navigation/native';
 import * as WebBrowser from "expo-web-browser";
 WebBrowser.maybeCompleteAuthSession();
 
@@ -13,7 +13,7 @@ import {
   LogBox,
 } from "react-native";
 
-import { GestureHandlerRootView } from "react-native-gesture-handler"; // ✅ ADD
+import { GestureHandlerRootView } from "react-native-gesture-handler"; 
 
 LogBox.ignoreLogs([
   "Warning: Text strings must be rendered within a <Text> component.",
@@ -55,6 +55,10 @@ import "react-native-screens";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
+// Context
+import { BookingProvider } from "./context/BookingContext";
+import { DarkModeProvider, useDarkMode } from "./context/DarkModeContext";
+
 // Screens
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
@@ -68,17 +72,23 @@ import GetStartedScreen from './screens/GetStartedScreen';
 import NotificationScreen from './screens/NotificationScreen';
 import BookingSummaryScreen from './screens/BookingSummaryScreen';
 import BookingConfirmationScreen from './screens/BookingConfirmationScreen';
-import { BookingProvider } from "./context/BookingContext";
-//import DesignSelectionScreen from './screens/DesignSelectionScreen';
+// Help & Support Screens
+import FAQScreen from './screens/FAQScreen';
+import ContactUsScreen from './screens/ContactUsScreen';
+import TermsConditionsScreen from './screens/TermsConditionsScreen';
+import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
 
 const Stack = createNativeStackNavigator();
 const { width, height } = Dimensions.get("window");
 
-export default function App() {
+// --- Separated AppContent para magamit yung darkMode sa loob ---
+function AppContent() {
   const [user, setUser] = useState(null);
   const [isAppReady, setIsAppReady] = useState(false);
   const splashFadeOut = useRef(new Animated.Value(1)).current;
   const [showGetStarted, setShowGetStarted] = useState(false);
+
+  const { darkMode } = useDarkMode(); // <-- Get dark mode state
 
   useEffect(() => {
     let authUnsubscribe;
@@ -133,7 +143,7 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BookingProvider>
-        <NavigationContainer>
+        <NavigationContainer theme={darkMode ? DarkTheme : DefaultTheme}>
           <Stack.Navigator
             initialRouteName={showGetStarted ? "GetStarted" : user ? "MainTabs" : "Login"}
           >
@@ -197,14 +207,44 @@ export default function App() {
               component={BookingConfirmationScreen}
               options={{ headerShown: false }}
             />
-          
+              {/* Help & Support Screens */}
+           <Stack.Screen
+             name="FAQs"
+             component={FAQScreen}
+             options={{ headerShown: false }}
+            />
+           <Stack.Screen
+             name="ContactUs"
+             component={ContactUsScreen}
+             options={{ headerShown: false }}
+            />
+          <Stack.Screen
+             name="TermsConditions"
+             component={TermsConditionsScreen}
+            options={{ headerShown: false }}
+            />
+          <Stack.Screen
+             name="PrivacyPolicy"
+             component={PrivacyPolicyScreen}
+             options={{ headerShown: false }}
+            />
           </Stack.Navigator>
-          <StatusBar style="auto" />
+          
+          <StatusBar style={darkMode ? "light" : "dark"} />
         </NavigationContainer>
       </BookingProvider>
     </GestureHandlerRootView>
   );
 }
+
+export default function App() {
+  return (
+    <DarkModeProvider>
+      <AppContent />
+    </DarkModeProvider>
+  );
+}
+
 const styles = StyleSheet.create({
   splashContainer: {
     flex: 1,

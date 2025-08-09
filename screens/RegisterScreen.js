@@ -1,4 +1,4 @@
-// screens/RegisterScreen.js// screens/RegisterScreen.js
+// screens/RegisterScreen.js
 import { useState } from "react";
 import {
   StyleSheet,
@@ -15,26 +15,35 @@ import {
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 export default function RegisterScreen({ navigation }) {
-  const [fullName, setFullName] = useState(""); // 👈 NEW: name field
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false); // 👈 NEW: State for the checkbox
 
   const auth = getAuth();
 
   const handleRegister = async () => {
+    // Check if all fields are filled
     if (!fullName || !email || !password || !confirmPassword) {
       Alert.alert("Error", "Please fill in all required information.");
       return;
     }
+    // Check if passwords match
     if (password !== confirmPassword) {
       Alert.alert("Error", "Password and confirmation password do not match.");
       return;
     }
+    // Check password length
     if (password.length < 6) {
       Alert.alert("Error", "Password must be at least 6 characters long.");
+      return;
+    }
+    // 👈 NEW: Check if the user agreed to the terms
+    if (!agreedToTerms) {
+      Alert.alert("Error", "You must agree to the Terms and Conditions and Privacy Policy to register.");
       return;
     }
 
@@ -43,7 +52,7 @@ export default function RegisterScreen({ navigation }) {
         auth, email, password
       );
 
-      // ✅ Update displayName with full name
+      // Update displayName with full name
       await updateProfile(userCredential.user, {
         displayName: fullName,
       });
@@ -75,7 +84,7 @@ export default function RegisterScreen({ navigation }) {
           <View style={styles.card}>
             <Text style={styles.title}>Create Your Account</Text>
 
-            {/* ✅ Full Name Input */}
+            {/* Full Name Input */}
             <TextInput
               style={styles.input}
               placeholder="Full Name"
@@ -146,6 +155,27 @@ export default function RegisterScreen({ navigation }) {
               </TouchableOpacity>
             </View>
 
+            {/* 👈 NEW: Checkbox for Terms and Conditions */}
+            <TouchableOpacity 
+              style={styles.checkboxContainer} 
+              onPress={() => setAgreedToTerms(!agreedToTerms)}
+            >
+              <Image
+                source={{
+                  uri: agreedToTerms
+                    ? 'https://img.icons8.com/material-outlined/24/000000/checked-checkbox.png'
+                    : 'https://img.icons8.com/material-outlined/24/000000/unchecked-checkbox.png'
+                }}
+                style={styles.checkboxIcon}
+              />
+              <Text style={styles.checkboxText}>
+                I agree with the
+                <Text style={styles.linkText} onPress={() => navigation.navigate("TermsConditions")}> Terms and Conditions </Text>
+                and
+                <Text style={styles.linkText} onPress={() => navigation.navigate("PrivacyPolicy")}> Privacy Policy </Text>.
+              </Text>
+            </TouchableOpacity>
+
             <TouchableOpacity style={styles.button} onPress={handleRegister}>
               <Text style={styles.buttonText}>Register</Text>
             </TouchableOpacity>
@@ -162,11 +192,10 @@ export default function RegisterScreen({ navigation }) {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FCE4EC', // Light pink background for a salon feel
+    backgroundColor: '#FCE4EC',
   },
   backgroundImage: {
     flex: 1,
@@ -178,47 +207,46 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Semi-transparent white overlay
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   card: {
-    width: '90%', // Adjusted width for better mobile display
-    maxWidth: 400, // Max width for larger screens
+    width: '90%',
+    maxWidth: 400,
     backgroundColor: '#fff',
-    borderRadius: 20, // More rounded corners for a softer look
+    borderRadius: 20,
     padding: 30,
     borderColor: '#666',
-    elevation: 2, // Android shadow
+    elevation: 2,
     alignItems: 'center',
   },
   headerText: {
     fontSize: 24,
     fontWeight: '600',
     marginBottom: 5,
-    color: '#880E4F', 
+    color: '#880E4F',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 30,
-    color: '#d13f3f', 
+    color: '#d13f3f',
     textAlign: 'center',
   },
   input: {
     width: '100%',
-    height: 55, // Slightly taller input fields
-    borderColor: '#666', // Light purple border
+    height: 55,
+    borderColor: '#666',
     borderWidth: 1,
-    borderRadius: 10, // Rounded input fields
+    borderRadius: 10,
     paddingHorizontal: 20,
-    marginBottom: 15, // Reduced margin for a tighter look
-    backgroundColor: '#F8F8F8', // Off-white input background
+    marginBottom: 15,
+    backgroundColor: '#F8F8F8',
     fontSize: 16,
     color: '#333',
   },
-  // Styles for password input with toggle icon (reused from LoginScreen)
   passwordInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -229,15 +257,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 15,
     backgroundColor: '#F8F8F8',
-    paddingRight: 10, // Add padding for the icon
+    paddingRight: 10,
   },
   passwordInputField: {
-    flex: 1, // Take up remaining space
+    flex: 1,
     height: '100%',
     paddingHorizontal: 20,
     fontSize: 16,
     color: '#333',
-    // No border here as the container has it
   },
   togglePasswordButton: {
     padding: 5,
@@ -245,25 +272,49 @@ const styles = StyleSheet.create({
   togglePasswordIcon: {
     width: 24,
     height: 24,
-    tintColor: '#888', // Make the icon color subtle
+    tintColor: '#888',
+  },
+  // 👈 NEW: Styles for the checkbox and text
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 20,
+  },
+  checkboxIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+    tintColor: '#d13f3f',
+  },
+  checkboxText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#666',
+    flexWrap: 'wrap',
+  },
+  linkText: {
+    color: '#d13f3f',
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
   },
   button: {
     width: '100%',
     height: 55,
-    backgroundColor: '#4CAF50', // Vibrant pink button
+    backgroundColor: '#4CAF50',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10, // Added margin top for button
+    marginTop: 10,
     marginBottom: 25,
-    borderColor: '#d13f3f', 
+    borderColor: '#d13f3f',
     elevation: 3,
   },
   buttonText: {
     color: '#fff',
     fontSize: 19,
     fontWeight: 'bold',
-    letterSpacing: 0.5, // Slightly spaced letters
+    letterSpacing: 0.5,
   },
   loginText: {
     color: '#666',
@@ -271,7 +322,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   loginLink: {
-    color: '#d13f3f', // Deep purple for the link
+    color: '#d13f3f',
     fontWeight: 'bold',
     textDecorationLine: 'underline',
   },

@@ -14,6 +14,71 @@ import {
 } from "react-native";
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useDarkMode } from '../context/DarkModeContext'; // Import global context
+
+// Import mo muna itong StyleSheet para sa Dark Mode styles
+const darkStyles = StyleSheet.create({
+  container: {
+    backgroundColor: "#121212", // Dark background
+  },
+  header: {
+    backgroundColor: '#1E1E1E', // Dark header background
+    borderBottomColor: '#2C2C2C', // Dark border
+  },
+  headerTitle: {
+    color: '#E0E0E0', // Light text
+  },
+  profileCard: {
+    backgroundColor: '#1E1E1E', // Dark card background
+  },
+  userName: {
+    color: '#E0E0E0', // Light text
+  },
+  userEmail: {
+    color: '#B0B0B0', // Lighter text
+  },
+  userPhone: {
+    color: '#B0B0B0', // Lighter text
+  },
+  phoneInput: {
+    backgroundColor: '#2C2C2C', // Dark input field
+    borderColor: "#3A3A3A",
+    color: '#E0E0E0', // Light text
+  },
+  menuSection: {
+    backgroundColor: '#1E1E1E', // Dark menu section background
+  },
+  sectionTitle: {
+    color: '#E0E0E0', // Light text
+  },
+  placeholderItem: {
+    backgroundColor: '#1E1E1E',
+  },
+  placeholderText: {
+    color: '#777', // Darker text
+  },
+  menuItemText: {
+    color: '#E0E0E0', // Light text
+  },
+  menuDivider: {
+    backgroundColor: '#2C2C2C', // Darker divider
+  },
+  versionContainer: {
+    backgroundColor: "#121212", // same as container
+  },
+  versionText: {
+    color: '#777', // Darker text
+  },
+  confirmBox: {
+    backgroundColor: "#1E1E1E", // Dark modal background
+  },
+  confirmTitle: {
+    color: "#E0E0E0", // Light text
+  },
+  confirmMessage: {
+    color: "#B0B0B0", // Lighter text
+  },
+});
 
 export default function ProfileScreen({ navigation }) {
   const [confirmVisible, setConfirmVisible] = useState(false);
@@ -23,9 +88,12 @@ export default function ProfileScreen({ navigation }) {
 
   const [bookingReminders, setBookingReminders] = useState(true);
   const [promos, setPromos] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  
+  // Use global dark mode context instead of local state
+  const { darkMode, toggleDarkMode } = useDarkMode();
 
   const [user, setUser] = useState({
+    uid: null,
     name: "",
     email: "",
     phone: "",
@@ -33,61 +101,84 @@ export default function ProfileScreen({ navigation }) {
   });
 
   const [phoneEditable, setPhoneEditable] = useState(false);
-   
+
   // Fetch logged-in user info
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser({
+          uid: currentUser.uid,
           name: currentUser.displayName || "No Name",
           email: currentUser.email || "No Email",
-          phone: "", // initially blank, user can edit
-          photo: currentUser.photoURL || "", // if no photo, show placeholder
+          phone: "",
+          photo: currentUser.photoURL || "",
         });
       }
     });
 
     return () => unsubscribe();
-  }, []);   
+  }, []);
 
-  useEffect(() => {
-    if (logoutSuccessVisible) {
-      Animated.parallel([
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: 300,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else {
-      scaleAnim.setValue(0.5);
-      fadeAnim.setValue(0);
-    }
-  }, [logoutSuccessVisible]);
+  // Combined styles using a conditional approach
+  const combinedStyles = (lightStyle, darkStyle) => {
+    return [lightStyle, darkMode && darkStyle];
+  };
 
   const confirmLogout = () => setConfirmVisible(true);
 
-  const handleLogout = async () => {
-    setConfirmVisible(false);
-    const auth = getAuth();
-    try {
-      await signOut(auth);
-      setLogoutSuccessVisible(true);
-      setTimeout(() => {
+const handleLogout = async () => {
+  setConfirmVisible(false);
+  const auth = getAuth();
+  try {
+    await signOut(auth);
+
+    // Ipakita modal at reset animation values
+    setLogoutSuccessVisible(true);
+    scaleAnim.setValue(0.5);
+    fadeAnim.setValue(0);
+
+    // Bounce + fade in animation
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 3, // mas mababa = mas bounce
+        tension: 120, // dagdag energy sa bounce
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // After 2 seconds, fade out at balik sa login
+    setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 200,
+          easing: Easing.in(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 0.8,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
         setLogoutSuccessVisible(false);
         navigation.replace("Login");
-      }, 2000);
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
+      });
+    }, 2000);
+    
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+};
+
 
   const pastBookings = [
     { service: 'Hair Cut', date: 'Jan 25, 2025' },
@@ -148,18 +239,18 @@ export default function ProfileScreen({ navigation }) {
       items: [
         { icon: 'notifications', label: 'Booking Reminders', hasSwitch: true, value: bookingReminders, onChange: setBookingReminders },
         { icon: 'local-offer', label: 'Promos & Offers', hasSwitch: true, value: promos, onChange: setPromos },
-        { icon: 'dark-mode', label: 'Dark Mode', hasSwitch: true, value: darkMode, onChange: setDarkMode },
+        { icon: 'dark-mode', label: 'Dark Mode', hasSwitch: true, value: darkMode, onChange: toggleDarkMode }, // Use global toggle
         { icon: 'lock', label: 'Change Password', hasAction: true }
       ]
     },
-    // Help & Support Section
+    // Help & Support Section - Updated with navigation
     {
       title: 'Help & Support',
       items: [
-        { icon: 'help', label: 'FAQs', hasAction: true },
-        { icon: 'chat', label: 'Contact Us', hasAction: true },
-        { icon: 'description', label: 'Terms & Conditions', hasAction: true },
-        { icon: 'privacy-tip', label: 'Privacy Policy', hasAction: true }
+        { icon: 'help', label: 'FAQs', onPress: () => navigation.navigate('FAQs') },
+        { icon: 'chat', label: 'Contact Us', onPress: () => navigation.navigate('ContactUs') },
+        { icon: 'description', label: 'Terms & Conditions', onPress: () => navigation.navigate('TermsConditions') },
+        { icon: 'privacy-tip', label: 'Privacy Policy', onPress: () => navigation.navigate('PrivacyPolicy') }
       ]
     },
     // Logout Section
@@ -173,28 +264,24 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <>
-      <View style={styles.container}>
+      <View style={combinedStyles(styles.container, darkStyles.container)}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={combinedStyles(styles.header, darkStyles.header)}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="arrow-back" size={24} color="#333" />
+            <Icon name="arrow-back" size={24} color={darkMode ? "#E0E0E0" : "#333"} />
           </TouchableOpacity>
-
-          <Text style={styles.headerTitle}>My Profile</Text>
-
-          {/* Settings icon not clickable */}
-          <Icon name="settings" size={24} color="#333" />
+          <Text style={combinedStyles(styles.headerTitle, darkStyles.headerTitle)}>My Profile</Text>
+          <Icon name="settings" size={24} color={darkMode ? "#E0E0E0" : "#333"} />
         </View>
 
-        <ScrollView 
+        <ScrollView
           style={styles.scrollView}
           contentContainerStyle={{ paddingBottom: 20 }}
           showsVerticalScrollIndicator={false}
         >
           {/* Profile Section */}
-          <View style={styles.profileCard}>
+          <View style={combinedStyles(styles.profileCard, darkStyles.profileCard)}>
             <View style={styles.profileHeader}>
-              {/* Profile Image */}
               <View style={styles.profileImageContainer}>
                 {user.photo ? (
                   <Image source={{ uri: user.photo }} style={styles.profileImage} />
@@ -207,28 +294,25 @@ export default function ProfileScreen({ navigation }) {
                   <Icon name="camera-alt" size={12} color="#fff" />
                 </View>
               </View>
-
-              {/* Profile Info */}
               <View style={styles.profileInfo}>
-                <Text style={styles.userName}>{user.name}</Text>
-                <Text style={styles.userEmail}>{user.email}</Text>
+                <Text style={combinedStyles(styles.userName, darkStyles.userName)}>{user.name}</Text>
+                <Text style={combinedStyles(styles.userEmail, darkStyles.userEmail)}>{user.email}</Text>
                 {phoneEditable ? (
                   <TextInput
-                    style={styles.phoneInput}
+                    style={combinedStyles(styles.phoneInput, darkStyles.phoneInput)}
                     placeholder="+63 --- --- ----"
                     value={user.phone}
                     onChangeText={(text) => setUser({ ...user, phone: text })}
                     keyboardType="phone-pad"
+                    placeholderTextColor={darkMode ? "#777" : "#aaa"}
                   />
                 ) : (
-                  <Text style={styles.userPhone}>
+                  <Text style={combinedStyles(styles.userPhone, darkStyles.userPhone)}>
                     {user.phone || "No phone number"}
                   </Text>
                 )}
               </View>
             </View>
-
-            {/* Edit Profile Button */}
             <TouchableOpacity
               style={styles.editButton}
               onPress={() => setPhoneEditable(!phoneEditable)}
@@ -242,18 +326,17 @@ export default function ProfileScreen({ navigation }) {
           {/* Menu Sections */}
           <View style={styles.menuContainer}>
             {menuSections.map((section, sectionIndex) => (
-              <View key={sectionIndex} style={styles.menuSection}>
-                {/* Section Title */}
+              <View key={sectionIndex} style={combinedStyles(styles.menuSection, darkStyles.menuSection)}>
                 {section.title && (
-                  <Text style={styles.sectionTitle}>{section.title}</Text>
+                  <Text style={combinedStyles(styles.sectionTitle, darkStyles.sectionTitle)}>{section.title}</Text>
                 )}
                 
                 {section.items.map((item, itemIndex) => (
                   <View key={itemIndex}>
                     {item.isPlaceholder ? (
-                      <View style={styles.placeholderItem}>
-                        <Icon name={item.icon} size={20} color="#ccc" />
-                        <Text style={styles.placeholderText}>{item.label}</Text>
+                      <View style={combinedStyles(styles.placeholderItem, darkStyles.placeholderItem)}>
+                        <Icon name={item.icon} size={20} color={darkMode ? "#444" : "#ccc"} />
+                        <Text style={combinedStyles(styles.placeholderText, darkStyles.placeholderText)}>{item.label}</Text>
                       </View>
                     ) : (
                       <TouchableOpacity 
@@ -264,11 +347,13 @@ export default function ProfileScreen({ navigation }) {
                           <Icon 
                             name={item.icon} 
                             size={20} 
-                            color={item.isLogout ? "#d13f3f" : item.isPoints ? "#4CAF50" : "#666"} 
+                            color={
+                              item.isLogout ? "#d13f3f" : item.isPoints ? "#4CAF50" : (darkMode ? "#B0B0B0" : "#666")
+                            } 
                           />
                           <View style={styles.menuItemContent}>
                             <Text style={[
-                              styles.menuItemText,
+                              combinedStyles(styles.menuItemText, darkStyles.menuItemText),
                               item.isLogout && styles.logoutText,
                               item.isPoints && styles.pointsText
                             ]}>
@@ -285,8 +370,8 @@ export default function ProfileScreen({ navigation }) {
                             <Switch
                               value={item.value}
                               onValueChange={item.onChange}
-                              trackColor={{ false: "#ddd", true: "#4CAF50" }}
-                              thumbColor={item.value ? "#fff" : "#fff"}
+                              trackColor={{ false: darkMode ? "#444" : "#ddd", true: "#4CAF50" }}
+                              thumbColor={darkMode ? "#fff" : "#fff"}
                             />
                           )}
                           {item.hasAction && (
@@ -297,13 +382,13 @@ export default function ProfileScreen({ navigation }) {
                             </TouchableOpacity>
                           )}
                           {!item.hasSwitch && !item.hasAction && !item.isLogout && (
-                            <Icon name="chevron-right" size={20} color="#ccc" />
+                            <Icon name="chevron-right" size={20} color={darkMode ? "#444" : "#ccc"} />
                           )}
                         </View>
                       </TouchableOpacity>
                     )}
                     {itemIndex < section.items.length - 1 && (
-                      <View style={styles.menuDivider} />
+                      <View style={combinedStyles(styles.menuDivider, darkStyles.menuDivider)} />
                     )}
                   </View>
                 ))}
@@ -311,8 +396,8 @@ export default function ProfileScreen({ navigation }) {
             ))}
           </View>
           {/* App Version */}
-          <View style={styles.versionContainer}>
-            <Text style={styles.versionText}>App version 0.1</Text>
+          <View style={combinedStyles(styles.versionContainer, darkStyles.versionContainer)}>
+            <Text style={combinedStyles(styles.versionText, darkStyles.versionText)}>App version 0.1</Text>
           </View>
         </ScrollView>
       </View>
@@ -320,9 +405,9 @@ export default function ProfileScreen({ navigation }) {
       {/* Confirmation Modal */}
       <Modal transparent visible={confirmVisible} animationType="fade" statusBarTranslucent>
         <View style={styles.confirmContainer}>
-          <View style={styles.confirmBox}>
-            <Text style={styles.confirmTitle}>Are you sure?</Text>
-            <Text style={styles.confirmMessage}>
+          <View style={combinedStyles(styles.confirmBox, darkStyles.confirmBox)}>
+            <Text style={combinedStyles(styles.confirmTitle, darkStyles.confirmTitle)}>Are you sure?</Text>
+            <Text style={combinedStyles(styles.confirmMessage, darkStyles.confirmMessage)}>
               Do you really want to log out?
             </Text>
             <View style={styles.confirmButtons}>
@@ -347,15 +432,15 @@ export default function ProfileScreen({ navigation }) {
       <Modal transparent visible={logoutSuccessVisible} animationType="fade" statusBarTranslucent>
         <View style={styles.confirmContainer}>
           <Animated.View style={[
-            styles.confirmBox,
+            combinedStyles(styles.confirmBox, darkStyles.confirmBox),
             {
               transform: [{ scale: scaleAnim }],
               opacity: fadeAnim,
             },
           ]}>
             <Icon name="logout" size={48} color="#4CAF50" />
-            <Text style={styles.confirmTitle}>Logged Out Successfully!</Text>
-            <Text style={styles.confirmMessage}>Redirecting to login...</Text>
+            <Text style={combinedStyles(styles.confirmTitle, darkStyles.confirmTitle)}>Logged Out Successfully!</Text>
+            <Text style={combinedStyles(styles.confirmMessage, darkStyles.confirmMessage)}>Redirecting to login...</Text>
           </Animated.View>
         </View>
       </Modal>
@@ -377,12 +462,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
-    marginTop: 55, 
+    marginTop: 55,
     marginHorizontal: 16,
     borderRadius: 12,
     elevation: 1,
   },
-  
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
@@ -391,7 +475,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     textAlign: 'center',
-    zIndex: -1, 
+    zIndex: -1,
   },
   scrollView: {
     flex: 1,
@@ -404,7 +488,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 8,
     borderRadius: 8,
-    alignItems: 'center', 
+    alignItems: 'center',
   },
   profileHeader: {
     flexDirection: 'row',
@@ -566,7 +650,7 @@ const styles = StyleSheet.create({
   versionContainer: {
     alignItems: 'center',
     paddingVertical: 20,
-    marginBottom:75,
+    marginBottom: 75,
   },
   versionText: {
     fontSize: 14,
