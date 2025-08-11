@@ -18,6 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { services } from './servicesData';
 import BigServiceCard from '../components/cards/BigServiceCard';
 import { getAuth } from 'firebase/auth';
+import { useFavorites } from '../context/FavoritesContext';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -28,6 +29,8 @@ const HomeScreen = () => {
   const [displayName, setDisplayName] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   const openImageModal = (image) => {
     setSelectedImage(image);
@@ -87,6 +90,7 @@ const HomeScreen = () => {
 
   const handleServicePress = serviceName => {
     const selectedService = services.find(s => s.name === serviceName);
+
     if (selectedService) {
       navigation.navigate('ServiceDetailScreen', { service: selectedService });
     }
@@ -178,91 +182,106 @@ const HomeScreen = () => {
             gap: 12,
           }}
           renderItem={({ item }) => {
-  const isFootSpa = item.serviceName.toLowerCase().includes('foot spa');
-  const hasMultipleImages = Array.isArray(item.images);
+            const isFootSpa = item.serviceName.toLowerCase().includes('foot spa');
+            const hasMultipleImages = Array.isArray(item.images);
 
-  if (isFootSpa && hasMultipleImages) {
-    return (
-      <View
-        style={{
-          width: screenWidth - 32,
-          backgroundColor: '#fff',
-          borderRadius: 16,
-          padding: 12,
-          marginBottom: 16,
-          elevation: 5,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.1,
-          shadowRadius: 6,
-          borderWidth: 0.5,
-          borderColor: '#e5e5e5',
-          alignSelf: 'center',
-        }}
-      >
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
-          {item.images.map((img, index) => (
-            <TouchableOpacity key={index} onPress={() => openImageModal(img)}>
-              <Image
-                source={img}
-                style={{
-                  width: (screenWidth - 64) / 3,
-                  height: 100,
-                  borderRadius: 8,
-                  marginRight: 8,
-                  resizeMode: 'cover',
-                }}
-              />
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+            if (isFootSpa && hasMultipleImages) {
+              return (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    width: screenWidth - 32,
+                    backgroundColor: '#fff',
+                    borderRadius: 16,
+                    padding: 12,
+                    marginBottom: 16,
+                    elevation: 5,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 6,
+                    borderWidth: 0.5,
+                    borderColor: '#e5e5e5',
+                    alignSelf: 'center',
+                    alignItems: 'center',
+                    gap: 12,
+                  }}
+                >
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1 }}>
+                    {item.images.map((img, index) => (
+                      <TouchableOpacity key={index} onPress={() => openImageModal(img)}>
+                        <Image
+                          source={img}
+                          style={{
+                            width: (screenWidth - 96) / 3,
+                            height: 100,
+                            borderRadius: 8,
+                            marginRight: 8,
+                            resizeMode: 'cover',
+                          }}
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
 
-        <Text style={{ fontSize: 16, fontWeight: '600', color: '#1a1a1a', textAlign: 'center' }}>{item.name}</Text>
-        <Text style={{ fontSize: 14, color: '#555', marginTop: 4, textAlign: 'center' }}>
-          with Manicure and Pedicure
-        </Text>
-        <Text style={{ fontSize: 14, fontWeight: '600', color: '#d10000', marginTop: 4, textAlign: 'center' }}>
-          ₱{item.price}
-        </Text>
+                  <View style={{ flex: 1, justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 16, fontWeight: '600', color: '#1a1a1a' }}>{item.name}</Text>
+                    <Text style={{ fontSize: 14, color: '#555', marginTop: 4 }}>{item.description}</Text>
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: '#d10000', marginTop: 4 }}>₱{item.price}</Text>
 
-        <TouchableOpacity
-          style={{
-            marginTop: 12,
-            backgroundColor: '#007d3f',
-            paddingVertical: 10,
-            paddingHorizontal: 20,
-            borderRadius: 100,
-            alignItems: 'center',
-            width: '100%',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.2,
-            shadowRadius: 4,
-            elevation: 3,
-          }}
-          onPress={() =>
-            navigation.navigate('BookingFormScreen', {
-              serviceName: item.serviceName,
-              styleName: item.name,
-              stylePrice: item.price,
-            })
-          }
-        >
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 14,
-              fontWeight: 'bold',
-              letterSpacing: 0.5,
-              textTransform: 'uppercase',
-            }}
-          >
-            Book Now
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+                    <View style={{ flexDirection: 'row', marginTop: 12, gap: 6, alignItems: 'center' }}>
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor: '#007d3f',
+                          padding: 6,
+                          borderRadius: 50,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                        onPress={() => toggleFavorite(item)}
+                      >
+                        <Icon
+                          name={isFavorite(item.name) ? 'heart' : 'heart-outline'}
+                          size={18}
+                          color="#fff"
+                        />
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          backgroundColor: '#007d3f',
+                          paddingVertical: 10,
+                          paddingHorizontal: 20,
+                          borderRadius: 100,
+                          alignItems: 'center',
+                          elevation: 3,
+                        }}
+                        onPress={() =>
+                          navigation.navigate('BookingFormScreen', {
+                            serviceName: item.serviceName,
+                            styleName: item.name,
+                            stylePrice: item.price,
+                          })
+                        }
+                      >
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 14,
+                            fontWeight: 'bold',
+                            letterSpacing: 0.5,
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          Book Now
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              );
+            }
 
             return (
               <BigServiceCard
@@ -309,173 +328,162 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-// styles unchanged
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
   scrollContainer: {
     paddingHorizontal: 16,
     paddingBottom: 130,
     paddingTop: 27,
   },
-  searchBarWrapper: {
-    marginBottom: 20,
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    height: 48,
+    marginTop: 50,
+    borderWidth: 1,
+    borderColor: '#D4D4D4',
+    elevation: 3,
   },
- searchBarContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: '#fff',
-  borderRadius: 20,
-  paddingHorizontal: 14,
-  height: 48,
-  marginTop: 50,
-  borderWidth: 1,
-  borderColor: '#D4D4D4',
-  elevation: 3,
-},
-searchIcon: {
-  marginRight: 8,
-  color: '#d13f3f',
-},
-clearIcon: {
-  marginLeft: 8,
-  color: '#999',
-},
-searchInput: {
-  flex: 1,
-  fontSize: 16,
-  color: '#000',
-  paddingVertical: 10,
-},
-searchResultsSection: {
-  marginTop: 10,
-},
-headerContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  marginTop: 10,
-  padding: 20,
-  backgroundColor: '#f9f9f9',
-  borderRadius: 16,
-  borderColor: '#D4D4D4',
-  elevation: 4,
-},
-headerLeft: {
-  flexDirection: 'row',
-  alignItems: 'center',
-},
-profileIcon: {
-  marginRight: 12,
-},
-headerGreeting: {
-  fontSize: 16,
-  color: '#777',
-},
-headerName: {
-  fontSize: 18,
-  fontWeight: 'bold',
-  color: '#222',
-},
-notifBadge: {
-  position: 'absolute',
-  top: -2,
-  right: -2,
-  backgroundColor: 'red',
-  width: 10,
-  height: 10,
-  borderRadius: 5,
-  borderWidth: 1,
-  borderColor: '#fff',
-},
-banner: {
-  backgroundColor: '#d13f3f',
-  height: 160,
-  marginVertical: 30,
-  justifyContent: 'center',
-  alignItems: 'center',
-  borderRadius: 20,
-  padding: 20,
-},
-bannerText: {
-  color: '#fff',
-  fontSize: 18,
-  fontWeight: '500',
-},
-servicesTitle: {
-  fontSize: 24,
-  fontWeight: '700',
-  textAlign: 'center',
-  marginBottom: 10,
-  color: '#d13f3f',
-  textTransform: 'uppercase',
-  letterSpacing: 1,
-},
-servicesContainer: {
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  justifyContent: 'space-between',
-  marginTop: 15,
-},
-serviceCard: {
-  width: '48%',
-  height: 210,
-  backgroundColor: '#fff',
-  borderRadius: 16,
-  marginBottom: 18,
-  overflow: 'hidden',
-  borderWidth: 1,
-  borderColor: '#D4D4D4',
-  elevation: 3,
-  alignItems: 'center',
-},
-serviceImage: {
-  width: '100%',
-  height: '65%',
-  borderTopLeftRadius: 16,
-  borderTopRightRadius: 16,
-},
-serviceLabelContainer: {
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: '#fff',
-  paddingHorizontal: 5,
-  paddingTop: 5,
-},
-serviceText: {
-  color: '#d13f3f',
-  fontSize: 14,
-  fontWeight: '600',
-  textAlign: 'center',
-},
-testimonialTitle: {
-  fontSize: 22,
-  fontWeight: '700',
-  color: '#d13f3f',
-  marginBottom: 12,
-  textAlign: 'center',
-},
-testimonialCard: {
-  backgroundColor: '#fff',
-  borderRadius: 14,
-  borderColor: '#D4D4D4',
-  padding: 15,
-  marginBottom: 15,
-  borderWidth: 1,
-  borderColor: '#ddd',
-},
-testimonialName: {
-  fontSize: 16,
-  fontWeight: '700',
-  marginBottom: 5,
-  color: '#333',
-},
-testimonialMessage: {
-  fontSize: 14,
-  color: '#555',
-  lineHeight: 20,
-},
+  searchIcon: {
+    marginRight: 8,
+    color: '#d13f3f',
+  },
+  clearIcon: {
+    marginLeft: 8,
+    color: '#999',
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#000',
+    paddingVertical: 10,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 10,
+    padding: 20,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 16,
+    borderColor: '#D4D4D4',
+    elevation: 4,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  profileIcon: {
+    marginRight: 12,
+  },
+  headerGreeting: {
+    fontSize: 16,
+    color: '#777',
+  },
+  headerName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#222',
+  },
+  notifBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: 'red',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
+  banner: {
+    backgroundColor: '#d13f3f',
+    height: 160,
+    marginVertical: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+    padding: 20,
+  },
+  bannerText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  servicesTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 10,
+    color: '#d13f3f',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  servicesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 15,
+  },
+  serviceCard: {
+    width: '48%',
+    height: 210,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    marginBottom: 18,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#D4D4D4',
+    elevation: 3,
+    alignItems: 'center',
+  },
+  serviceImage: {
+    width: '100%',
+    height: '65%',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  serviceLabelContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 5,
+    paddingTop: 5,
+  },
+  serviceText: {
+    color: '#d13f3f',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  testimonialTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#d13f3f',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  testimonialCard: {
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    borderColor: '#D4D4D4',
+    padding: 15,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  testimonialName: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 5,
+    color: '#333',
+  },
+  testimonialMessage: {
+    fontSize: 14,
+    color: '#555',
+    lineHeight: 20,
+  },
 });

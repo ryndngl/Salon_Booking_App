@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useFavorites } from "../context/FavoritesContext";
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = (screenWidth - 48) / 2;
@@ -26,17 +28,28 @@ const ServiceDetailScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
- const isHairCut = service.name.trim().toLowerCase() === 'hair cut';
-
-const filteredStyles = service.styles.filter((style) => {
-  if (isHairCut) {
-    return style.category === selectedCategory;
+  // Check if service data is valid before proceeding
+  if (!service || !service.name || !service.styles) {
+    // Navigate back to the previous screen if service data is missing
+    navigation.goBack();
+    return null;
   }
-  return true; // show all styles for non-haircut services
-});
 
-console.log('Filtered styles:', filteredStyles);
+  const { toggleFavorite, isFavorite } = useFavorites();
+  
+  // Mas specific na conditional checks para mas malinaw
+  const isHairCut = service.name.trim().toLowerCase() === 'hair cut';
+  const isFootSpa = service.name.trim().toLowerCase() === 'foot spa';
 
+  // Na-fix na filtering logic
+  const filteredStyles = service.styles.filter((style) => {
+    if (isHairCut) {
+      // Filter by category only for 'Hair Cut'
+      return style.category === selectedCategory;
+    }
+    // Para sa ibang services (Nail Care, Foot Spa), ibalik lahat ng styles
+    return true;
+  });
 
   const openImageModal = (image) => {
     setSelectedImage(image);
@@ -50,6 +63,8 @@ console.log('Filtered styles:', filteredStyles);
       stylePrice: style.price,
     });
   };
+
+  const cardStyle = isFootSpa? styles.fullWidthCard : styles.card;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -80,51 +95,70 @@ console.log('Filtered styles:', filteredStyles);
           </View>
         )}
 
-      <View style={styles.grid}>
-  {filteredStyles.map((style, index) => {
-    const hasMultipleImages = Array.isArray(style.images);
+        <View style={styles.grid}>
+          {filteredStyles.map((style, index) => {
+            const hasMultipleImages = Array.isArray(style.images);
+            const favorite = isFavorite(style.name);
 
-    return (
-      <View
-        key={index}
-        style={hasMultipleImages ? styles.footSpaCard : styles.card}
-      >
-        {hasMultipleImages ? (
-          <View style={styles.footSpaImagesContainer}>
-            {style.images.map((img, idx) => (
-              <TouchableOpacity key={idx} onPress={() => openImageModal(img)}>
-                <Image source={img} style={styles.footSpaImage} />
-              </TouchableOpacity>
-            ))}
-          </View>
-        ) : (
-          <TouchableOpacity onPress={() => openImageModal(style.image)}>
-            <View style={styles.imageWrapper}>
-              <Image source={style.image} style={styles.image} />
-            </View>
-          </TouchableOpacity>
-        )}
+            return (
+              <View
+                key={index}
+                style={cardStyle}
+              >
+                {/* Image */}
+                {hasMultipleImages ? (
+                  <View style={styles.footSpaImagesContainer}>
+                    {style.images.map((img, idx) => (
+                      <TouchableOpacity key={idx} onPress={() => openImageModal(img)}>
+                        <Image source={img} style={styles.footSpaImage} />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ) : (
+                  <TouchableOpacity onPress={() => openImageModal(style.image)}>
+                    <View style={styles.imageWrapper}>
+                      <Image source={style.image} style={isHairCut ? styles.image : styles.fullWidthImage} />
+                    </View>
+                  </TouchableOpacity>
+                )}
 
-        <View style={styles.cardContent}>
-          <Text style={styles.styleName}>{style.name}</Text>
-          {/* Optional subtitle for Foot Spa */}
-          {hasMultipleImages && (
-            <Text style={styles.footSpaSubtitle}>with Manicure and Pedicure</Text>
-          )}
-          <Text style={styles.price}>₱{style.price}</Text>
+                {/* Card Content */}
+                <View style={styles.cardContent}>
+                  <View style={styles.namePriceRow}>
+                    <Text style={styles.styleName}>{style.name}</Text>
+                    <Text style={styles.price}>₱{style.price}</Text>
+                  </View>
 
-          <TouchableOpacity
-            style={styles.bookNowButton}
-            onPress={() => goToBooking(style)}
-          >
-            <Text style={styles.bookNowButtonText}>Book Now</Text>
-          </TouchableOpacity>
+                  {style.description && (
+                    <Text style={styles.description}>
+                      {style.description}
+                    </Text>
+                  )}
+
+                  <View style={styles.bottomRow}>
+                    <TouchableOpacity
+                      style={styles.heartButton}
+                      onPress={() => toggleFavorite(style)}
+                    >
+                      <Ionicons
+                        name={favorite ? "heart" : "heart-outline"}
+                        size={18}
+                        color="#fff"
+                      />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.bookNowButton}
+                      onPress={() => goToBooking(style)}
+                    >
+                      <Text style={styles.bookNowButtonText}>Book Now</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            );
+          })}
         </View>
-      </View>
-    );
-  })}
-</View>
-
       </ScrollView>
 
       {/* Fullscreen Image Modal */}
@@ -134,8 +168,15 @@ console.log('Filtered styles:', filteredStyles);
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <Pressable style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
-          <Image source={selectedImage} style={styles.fullscreenImage} resizeMode="contain" />
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setModalVisible(false)}
+        >
+          <Image
+            source={selectedImage}
+            style={styles.fullscreenImage}
+            resizeMode="contain"
+          />
         </Pressable>
       </Modal>
     </SafeAreaView>
@@ -196,13 +237,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     width: cardWidth,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
     elevation: 5,
     borderWidth: 0.5,
     borderColor: '#e5e5e5',
+  },
+  fullWidthCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    marginBottom: 20,
+    width: '100%',
+    overflow: 'hidden',
+    elevation: 5,
+    borderWidth: 0.5,
+    borderColor: '#e5e5e5',
+    alignSelf: 'center',
   },
   imageWrapper: {
     width: '100%',
@@ -214,38 +262,65 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
+  fullWidthImage: {
+    width: '100%',
+    height: 200, // Adjust height as needed
+    resizeMode: 'cover',
+  },
   cardContent: {
-    padding: 10,
+    padding: 12,
+    flex: 1, 
+    justifyContent: 'space-between', 
+  },
+  namePriceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 4,
+    marginBottom: 6,
   },
   styleName: {
     fontSize: 15,
     fontWeight: '600',
     color: '#1a1a1a',
-    marginTop: 8,
-    textAlign: 'center',
-    letterSpacing: 0.3,
+    flex: 1,
   },
   price: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#d10000',
+  },
+  description: {
+    fontSize: 13,
+    color: '#555',
     marginTop: 4,
-    textAlign: 'center',
+    marginBottom: 10,
+    lineHeight: 18, 
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+    gap:6,
+  },
+  heartButton: {
+    backgroundColor: "#007d3f",
+    padding: 6,
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
   },
   bookNowButton: {
-    marginTop: 12,
-    backgroundColor: '#007d3f',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    backgroundColor: "#007d3f",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     borderRadius: 100,
-    alignItems: 'center',
-    width: '100%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    elevation: 1,
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    height: 40,
   },
   bookNowButtonText: {
     color: '#fff',
@@ -254,7 +329,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
-  // Modal styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.9)',
@@ -265,42 +339,17 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  // Custom Foot Spa Card styles
-  footSpaCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 12,
-    marginBottom: 20,
-    width: '100%',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    borderWidth: 0.5,
-    borderColor: '#e5e5e5',
-  },
   footSpaImagesContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 8 ,
   },
   footSpaImage: {
     width: (screenWidth - 64) / 3,
     height: 100,
-    borderRadius: 8,
+    borderRadius: 10,
     resizeMode: 'cover',
-  },
-  footSpaTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'center',
-  },
-  footSpaSubtitle: {
-    fontSize: 14,
-    color: '#555',
-    marginTop: 4,
-    textAlign: 'center',
   },
 });

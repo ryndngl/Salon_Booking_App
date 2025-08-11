@@ -58,6 +58,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 // Context
 import { BookingProvider } from "./context/BookingContext";
 import { DarkModeProvider, useDarkMode } from "./context/DarkModeContext";
+import { FavoritesProvider } from "./context/FavoritesContext";
 
 // Screens
 import LoginScreen from './screens/LoginScreen';
@@ -72,6 +73,7 @@ import GetStartedScreen from './screens/GetStartedScreen';
 import NotificationScreen from './screens/NotificationScreen';
 import BookingSummaryScreen from './screens/BookingSummaryScreen';
 import BookingConfirmationScreen from './screens/BookingConfirmationScreen';
+
 // Help & Support Screens
 import FAQScreen from './screens/FAQScreen';
 import ContactUsScreen from './screens/ContactUsScreen';
@@ -143,6 +145,7 @@ function AppContent() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BookingProvider>
+       <FavoritesProvider>
         <NavigationContainer theme={darkMode ? DarkTheme : DefaultTheme}>
           <Stack.Navigator
             initialRouteName={showGetStarted ? "GetStarted" : user ? "MainTabs" : "Login"}
@@ -232,6 +235,7 @@ function AppContent() {
           
           <StatusBar style={darkMode ? "light" : "dark"} />
         </NavigationContainer>
+       </FavoritesProvider>
       </BookingProvider>
     </GestureHandlerRootView>
   );
@@ -240,7 +244,7 @@ function AppContent() {
 export default function App() {
   return (
     <DarkModeProvider>
-      <AppContent />
+       <AppContent />
     </DarkModeProvider>
   );
 }

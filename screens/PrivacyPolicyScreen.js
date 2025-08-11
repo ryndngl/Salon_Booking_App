@@ -225,7 +225,7 @@ export default function PrivacyPolicyScreen({ navigation }) {
               For questions about this Privacy Policy or your personal data:
               {"\n\n"}
               <Text style={styles.boldText}>Data Protection Officer:</Text>
-              {"\n"}Email: ryanlaurencedingle@gmail.com
+              {"\n"}Email: vansglowupsalon2k25@gmail.com
               {"\n"}Phone: +63 956 411 7744
               {"\n\n"}
               <Text style={styles.boldText}>Mailing Address:</Text>

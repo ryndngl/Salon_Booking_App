@@ -37,7 +37,7 @@ export default function ContactUsScreen({ navigation }) {
   };
 
   const handleEmail = () => {
-    Linking.openURL('mailto:ryanlaurencedingle@gmail.com');
+    Linking.openURL('mailto:vansglowupsalon2k25@gmail.com');
   };
 
   const handleSMS = () => {
@@ -56,7 +56,7 @@ export default function ContactUsScreen({ navigation }) {
     {
       icon: 'email',
       title: 'Email Support',
-      subtitle: 'ryanlaurencedingle@gmail.com',
+      subtitle: 'vansglowupsalon2k25@gmail.com',
       description: 'We respond within 24 hours',
       action: handleEmail,
       color: '#2196F3'
