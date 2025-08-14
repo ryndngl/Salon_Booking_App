@@ -1,10 +1,12 @@
 //servicesData.js
 
 export const services = [
+  // HAIR CUT SERVICES
   {
     id: 1,
     name: 'Hair Cut',
     styles: [
+    // MEN  
       {
         id: 1,
         name: 'Buzz Cut',
@@ -102,7 +104,7 @@ export const services = [
         image: require ('../assets/Haircut/Men/Army Cut.webp'),
       },
 
-      // Women
+      // WOMEN
       {
         id: 1,
         name: 'Boy Cut',
@@ -232,7 +234,7 @@ export const services = [
         image: require ('../assets/Haircut/Women/Balayage.webp'),
       },
 
-      // Kids
+      // KIDS
       {
         id: 1,
         name: 'Army Cut',
@@ -324,21 +326,57 @@ export const services = [
     ],
   },
 
-
+// HAIR COLOR SERVICES
 
   {
   id: 2,
   name: 'Hair Color',
   styles: [
  // ROOT TOUCH UP CATEGORY
+    {
+      id: 1,
+      name: 'Medium Brown',
+      category: 'Root Touch Up',
+      price: 200,
+      description: "Ideal for covering roots on medium brown hair.",
+      image: require ('../assets/Hair Color/Medium Brown.webp'),
+    },
 
-
-
-
-
+    {
+      id: 2,
+      name: 'Light Blonde',
+      category: 'Root Touch Up',
+      price: 200,
+      description: "Used to seamlessly blend darker roots into light blonde hair.",
+      image: require ('../assets/Hair Color/Light Blonde.webp'),
+    },
+    {
+      id: 3,
+      name: 'Black',
+      category: 'Root Touch Up',
+      price: 200,
+      description: " Perfect for concealing regrowth on natural or dyed black hair.",
+      image: require ('../assets/Hair Color/Black.webp'),
+    },
+    {
+      id: 4,
+      name: 'Auburn Tones',
+      category: 'Root Touch Up',
+      price: 200,
+      description: "Designed to match and blend with reddish-brown auburn hair colors.",
+      image: require ('../assets/Hair Color/Auburn tones.webp'),
+    },
+    {
+      id: 5,
+      name: 'Dark Brown',
+      category: 'Root Touch Up',
+      price: 200,
+      description: "For quick and easy root coverage on dark brown hair.",
+      image: require ('../assets/Hair Color/Dark Brown.webp'),
+    },
 
   // FULL HAIR CATEGORY
-   {
+    {
       id: 1,
       name: 'Inky Grey',
       category: 'Full Hair',
@@ -362,7 +400,38 @@ export const services = [
       description: "Bold and playful purple for a unique and creative style.",
       image: require ('../assets/Hair Color/Purple.webp'),
     },
-
+    {
+      id: 4,
+      name: 'Chestnut Brown',
+      category: 'Full Hair',
+      price: 200,
+      description: "A warm brown shade with subtle reddish undertones.",
+      image: require ('../assets/Hair Color/Chestnut Brown.webp'),
+    },
+    {
+      id: 5,
+      name: 'Plum',
+      category: 'Full Hair',
+      price: 200,
+      description: "A rich, deep purple shade that can have either reddish or bluish undertones for a bold and dramatic look.",
+      image: require ('../assets/Hair Color/Plum.webp'),
+    },
+    {
+      id: 6,
+      name: 'Light Golden Brown',
+      category: 'Full Hair',
+      price: 200,
+      description: "A warm, light brown shade infused with subtle golden tones for a soft and luminous finish.",
+      image: require ('../assets/Hair Color/Light Golden Brown.webp'),
+    },
+    {
+      id: 7,
+      name: 'Ember',
+      category: 'Full Hair',
+      price: 200,
+      description: "A fiery, reddish-orange color with warm undertones, giving your hair a vibrant, glowing effect.",
+      image: require ('../assets/Hair Color/Ember.webp'),
+    },
 // HIGHLIGHT CATEGORY
     {
       id: 1,
@@ -370,7 +439,7 @@ export const services = [
       category: 'Highlight',
       price: 200,
       description: "Face-framing highlights that brighten and enhance your look.",
-      image: require ('../assets/Hair Color/Money Piece Highlights.webp'),
+      image: require ('../assets/Hair Color/Money Piece.webp'),
     },
     {
       id: 2,
@@ -378,7 +447,7 @@ export const services = [
       category: 'Highlight',
       price: 200,
       description: "Vibrant copper streaks that add warmth and dimension.",
-      image: require ('../assets/Hair Color/Copper Highlights.webp'),
+      image: require ('../assets/Hair Color/Copper.webp'),
     },
      {
       id: 3,
@@ -386,9 +455,49 @@ export const services = [
       category: 'Highlight',
       price: 200,
       description: "Bold and vibrant blue for a standout, creative statement.",
-      image: require ('../assets/Hair Color/Blue Hair.webp'),
+      image: require ('../assets/Hair Color/Blue.webp'),
     },
-  
+    {
+      id: 4,
+      name: 'Cherry Red',
+      category: 'Highlight',
+      price: 200,
+      description: "Bright, eye-catching red with a playful and daring appeal.",
+      image: require ('../assets/Hair Color/Cherry Red.webp'),
+    },
+    {
+      id: 5,
+      name: 'Honey Blonde',
+      category: 'Highlight',
+      price: 200,
+      description: "This highlight provides a warm, golden blonde color that brightens up the hair.",
+      image: require ('../assets/Hair Color/Honey Blonde.webp'),
+    },
+    {
+      id: 6,
+      name: 'Ombre',
+      category: 'Highlight',
+      price: 200,
+      description: " A gradual transition from dark roots to lighter ends.",
+      image: require ('../assets/Hair Color/Ombre.webp'),
+    },
+    {
+      id: 7,
+      name: 'Caramel',
+      category: 'Highlight',
+      price: 200,
+      description: "Warm brown with golden undertones.",
+      image: require ('../assets/Hair Color/Caramel Highlight.webp'),
+    },
+    {
+      id: 8,
+      name: 'Chunky',
+      category: 'Highlight',
+      price: 200,
+      description: "Thick and distinct strands of color.",
+      image: require ('../assets/Hair Color/Chunky.webp'),
+    },
+    
    // BALAYAGE CATEGORY 
     {
       id: 1,
@@ -399,7 +508,7 @@ export const services = [
       image: require ('../assets/Hair Color/Ash Blonde.webp'),
     },
     {
-      id: 4,
+      id: 2,
       name: 'Burgundy',
       category: 'Balayage',
       price: 200,
@@ -407,24 +516,50 @@ export const services = [
       image: require ('../assets/Hair Color/Burgundy Hair.webp'),
     },
     {
-      id: 5,
-      name: 'Cherry Red',
+      id: 3,
+      name: 'Auburn',
       category: 'Balayage',
       price: 200,
-      description: "Bright, eye-catching red with a playful and daring appeal.",
-      image: require ('../assets/Hair Color/Cherry Red Hair.webp'),
+      description: "It provides a warm, vibrant hue that makes your hair stand out, especially when it catches the light.",
+      image: require ('../assets/Hair Color/Auburn.webp'),
+    },
+    {
+      id: 4,
+      name: 'Bronde',
+      category: 'Balayage',
+      price: 200,
+      description: "This is the perfect blend of blonde and brown tones, creating a sun-kissed and natural look. ",
+      image: require ('../assets/Hair Color/Bronde.webp'),
+    },
+     {
+      id: 5,
+      name: 'Chocolate Brown',
+      category: 'Balayage',
+      price: 200,
+      description: "It gives your hair a deep and sophisticated look with beautiful, natural-looking dimension.",
+      image: require ('../assets/Hair Color/Chocolate Brown.webp'),
     },
     {
       id: 6,
-      name: 'Chestnut Brown',
+      name: 'Silver',
       category: 'Balayage',
       price: 200,
-      description: "A warm brown shade with subtle reddish undertones.",
-      image: require ('../assets/Hair Color/Chestnut Brown.webp'),
+      description: "For a bold, modern, and edgy look, This is a great choice if you want to make a statement with your hair",
+      image: require ('../assets/Hair Color/Silver.webp'),
+    },
+    {
+      id: 7,
+      name: 'Caramel',
+      category: 'Balayage',
+      price: 200,
+      description: "This hair color uses rich, warm golden brown and buttery tones that look like a delicious drizzle of caramel. ",
+      image: require ('../assets/Hair Color/Caramel.webp'),
     },
     
   ],
 },
+
+// HAIR TREATMENT SERVICES
 
   {
   id: 3,
@@ -489,6 +624,8 @@ export const services = [
   ],
 },
 
+//REBOND AND FORMS SERVICES
+
   {
   id: 4,
   name: 'Rebond & Forms',
@@ -531,6 +668,8 @@ export const services = [
   ],
 },
 
+// NAIL CARE SERVICES
+
   {
     id: 5,
     name: 'Nail Care',
@@ -558,6 +697,8 @@ export const services = [
       },
     ],
   },
+
+// FOOT SPA SERVICES
 
 {
   id: 6,
@@ -589,5 +730,5 @@ export const services = [
       image: require('../assets/Foot Spa/Pedicure.webp'),
     },
   ],
-}
+ }
 ];

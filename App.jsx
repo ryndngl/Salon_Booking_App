@@ -88,7 +88,7 @@ function AppContent() {
   const { darkMode } = useDarkMode(); // <-- Get dark mode state
 
   useEffect(() => {
-    let authUnsubscribe;
+    let authUnsubscribe; 
     let splashTimer;
     let firebaseLoaded = false;
     let splashAnimationTriggered = false;
