@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 const BookingSummaryScreen = () => {
   const navigation = useNavigation();
@@ -41,19 +42,19 @@ const BookingSummaryScreen = () => {
           <Text style={styles.value}>{bookingDetails.serviceName}</Text>
         </View>
 
-        {bookingDetails.category ? (
+        {bookingDetails.category && (
           <View style={styles.row}>
             <Text style={styles.label}>Category:</Text>
             <Text style={styles.value}>{bookingDetails.category}</Text>
           </View>
-        ) : null}
+        )}
 
-        {bookingDetails.style ? (
+        {bookingDetails.style && (
           <View style={styles.row}>
             <Text style={styles.label}>Style:</Text>
             <Text style={styles.value}>{bookingDetails.style}</Text>
           </View>
-        ) : null}
+        )}
 
         <View style={styles.row}>
           <Text style={styles.label}>Date:</Text>
@@ -73,6 +74,7 @@ const BookingSummaryScreen = () => {
 
       <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+         <Ionicons name="create-outline" size={20} color="#888" />
           <Text style={styles.editButtonText}>Edit</Text>
         </TouchableOpacity>
 
@@ -103,12 +105,9 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
     borderRadius: 16,
+    borderColor: '#D4D4D4',
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    elevation: 3,
     marginBottom: 30,
   },
   row: {
@@ -128,14 +127,19 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 20,
   },
-  editButton: {
+   editButton: {
     flex: 1,
     marginRight: 10,
-    padding: 15,
-    backgroundColor: '#ccc',
+    paddingVertical: 12,
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    backgroundColor: '#fff',
+    borderColor: '#666',
+    borderWidth: 1,
     borderRadius: 10,
-    alignItems: 'center',
   },
   proceedButton: {
     flex: 1,
@@ -145,9 +149,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-  editButtonText: {
-    color: '#333',
+editButtonText: {
+    color: '#888',
     fontWeight: 'bold',
+    fontSize: 16,
+    marginLeft: 5, // Added space between icon and text
   },
   proceedButtonText: {
     color: '#fff',

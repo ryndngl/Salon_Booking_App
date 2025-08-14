@@ -21,7 +21,6 @@ const timeSlots = [
   '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM',
   '5:00 PM',
 ];
-
 const allServices = [
   'Hair Cut',
   'Hair Color',
@@ -34,23 +33,27 @@ const allServices = [
 const hairCutOptions = ['Men', 'Women', 'Kids'];
 const haircutStyles = {
   Men: ['Buzz Cut', 'High Fade', 'Crew Cut', 'Curtain Fringe', 'Fohawk', 'French Crop', 'Side Part', 'Taper Fade Mohawk', 'Textured-Comb-Over', 'Two Block', 'Army Cut', 'Burst Fade'],
-  
-   Women: [
-      'Boy Cut', 'Butterfly Cut', 'Fluffy Waves Bob', 'Layered Curls',
-      'Layered', 'Long Layered', 'Middy', 'Short', 'Soft and Pixie Cut',
-      'Textured Bob', 'V Cut', 'Wolf Cut Mallet', 'Wolf Cut', 'Bangs',
-      'Side swept',
-    ],
- Kids: [
-      'Army Cut', 'Bowl Cut', 'Buzz Cut', 'Comb Over Cut', 'Pompadour',
-      'Fade', 'Fringe Fade', 'High Fade', 'Mid Fade', 'Mohawk',
-      'Side Part Cut',
-    ],
+  Women: ['Boy Cut', 'Butterfly Cut', 'Fluffy Waves Bob', 'Layered Curls', 'Layered', 'Long Layered', 'Middy', 'Short', 'Soft and Pixie Cut', 'Textured Bob', 'V Cut', 'Wolf Cut Mallet', 'Wolf Cut', 'Bangs', 'Side swept'],
+  Kids: ['Army Cut', 'Bowl Cut', 'Buzz Cut', 'Comb Over Cut', 'Pompadour', 'Fade', 'Fringe Fade', 'High Fade', 'Mid Fade', 'Mohawk', 'Side Part Cut'],
+};
+
+const hairColorOptions = [
+  'Root Touch Up',
+  'Full Hair',
+  'Highlight',
+  'Balayage',
+];
+const hairColorStyles = {
+  'Root Touch Up': ['Medium Brown', 'Light Blonde', 'Black', 'Auburn Tones', 'Dark Brown'],
+  'Full Hair': ['Inky Grey', 'Blonde', 'Purple', 'Chestnut Brown', 'Plum', 'Light Golden Brown', 'Ember'],
+  'Highlight': ['Money Piece', 'Copper', 'Blue', 'Cherry Red', 'Honey Blonde', 'Ombre', 'Caramel Highlight', 'Chunky'],
+  'Balayage': ['Ash Blonde', 'Burgundy', 'Auburn', 'Bronde', 'Chocolate Brown', 'Silver', 'Caramel Balayage'],
 };
 
 const BookingFormScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
+
   const { addBooking } = useBooking();
 
   const passedServiceName = route?.params?.serviceName || '';
@@ -66,11 +69,11 @@ const BookingFormScreen = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedTime, setSelectedTime] = useState('');
   const [nameError, setNameError] = useState('');
-
+  
   const isHairCut = serviceName === 'Hair Cut';
+  const isHairColor = serviceName === 'Hair Color';
   const comingFromCTA = passedServiceName === '';
 
-  // Auto-detect category based on style kung Hair Cut
   useEffect(() => {
   if (isHairCut && passedStyle) {
     for (const cat of Object.keys(haircutStyles)) {
@@ -80,15 +83,21 @@ const BookingFormScreen = () => {
         break;
       }
     }
-  }
-}, [isHairCut, passedStyle]);
-
+  } else if (isHairColor && passedStyle) {
+      for (const cat of Object.keys(hairColorStyles)) {
+        if (hairColorStyles[cat].includes(passedStyle)) {
+          setCategory(cat);
+          setStyle(passedStyle);
+          break;
+        }
+      }
+    }
+}, [isHairCut, isHairColor, passedStyle]);
 
   const handleDateChange = (event, selectedDate) => {
     if (selectedDate) setDate(selectedDate);
     setShowDatePicker(false);
   };
-
   const validateName = (inputName) => {
     const nameRegex = /^[A-Za-z]{2,}(?:\s[A-Za-z]{2,})+$/;
     if (!nameRegex.test(inputName.trim())) {
@@ -98,14 +107,14 @@ const BookingFormScreen = () => {
     }
     setName(inputName);
   };
-
   const isFormValid =
     name.trim() !== '' &&
     nameError === '' &&
     serviceName !== '' &&
     date !== null &&
     selectedTime !== '' &&
-    (!isHairCut || (category !== '' && style !== ''));
+    (!isHairCut || (category !== '' && style !== '')) &&
+    (!isHairColor || (category !== '' && style !== ''));
 
   const handleSubmit = () => {
     if (!isFormValid) {
@@ -116,14 +125,13 @@ const BookingFormScreen = () => {
     const bookingData = {
       name,
       serviceName,
-      category: isHairCut ? category : '',
+      category: (isHairCut || isHairColor) ? category : '',
       style: style || '',
       date: date.toLocaleDateString(),
       time: selectedTime,
-      price,
+      price: price,
       status: 'pending',
     };
-
     addBooking(bookingData);
     navigation.navigate('BookingSummaryScreen', { bookingDetails: bookingData });
   };
@@ -159,6 +167,7 @@ const BookingFormScreen = () => {
                     setServiceName(service);
                     setCategory('');
                     setStyle('');
+                    setPrice(0);
                   }}
                 >
                   <Text
@@ -194,6 +203,7 @@ const BookingFormScreen = () => {
                     onPress={() => {
                       setCategory(option);
                       setStyle('');
+                      setPrice(0);
                     }}
                   >
                     <Text
@@ -209,7 +219,7 @@ const BookingFormScreen = () => {
               </View>
             )}
 
-            {category && (
+              {category && (
               <>
                 <Text style={styles.label}>Style:</Text>
                 {passedStyle ? (
@@ -243,8 +253,81 @@ const BookingFormScreen = () => {
             )}
           </>
         )}
+        
+        {isHairColor && (
+          <>
+            <Text style={styles.label}>Category:</Text>
+            {passedStyle ? (
+              <View style={styles.input}>
+                <Text>{category}</Text>
+              </View>
+            ) : (
+              <View style={styles.optionsContainer}>
+                {hairColorOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.optionButton,
+                      category === option && styles.optionButtonSelected,
+                    ]}
+                    onPress={() => {
+                      setCategory(option);
+                      setStyle('');
+                      setPrice(0);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.optionButtonText,
+                        category === option && styles.optionButtonTextSelected,
+                      ]}
+                    >
+                      {option}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
-        {!isHairCut && style ? (
+            {category && (
+              <>
+                <Text style={styles.label}>Style:</Text>
+                {passedStyle ? (
+                  <View style={styles.input}>
+                    <Text>{style}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.optionsContainer}>
+                    {hairColorStyles[category].map((opt) => (
+                      <TouchableOpacity
+                        key={opt}
+                        style={[
+                          styles.optionButton,
+                          style === opt && styles.optionButtonSelected,
+                        ]}
+                        onPress={() => {
+                          setStyle(opt);
+                          setPrice(0); // Price will be 0 if the user changes the style. This is a limitation.
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.optionButtonText,
+                            style === opt && styles.optionButtonTextSelected,
+                          ]}
+                        >
+                          {opt}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </>
+            )}
+          </>
+        )}
+
+        {!isHairCut && !isHairColor && style ? (
           <>
             <Text style={styles.label}>Style:</Text>
             <View style={styles.input}>

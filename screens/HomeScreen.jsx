@@ -149,7 +149,8 @@ const HomeScreen = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 20, backgroundColor: '#fff', zIndex: 1 }}>
         <View style={styles.searchBarContainer}>
-          <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
+          <Icon name="search" size={20} color="#888" style={styles.searchIcon} 
+          />
           <TextInput
             placeholder="Search styles or services..."
             placeholderTextColor="#aaa"
@@ -181,122 +182,123 @@ const HomeScreen = () => {
             paddingTop: 20,
             gap: 12,
           }}
-          renderItem={({ item }) => {
-            const isFootSpa = item.serviceName.toLowerCase().includes('foot spa');
-            const hasMultipleImages = Array.isArray(item.images);
+         renderItem={({ item }) => {
+  const isFootSpa = item.serviceName.toLowerCase().includes('foot spa');
+  const hasMultipleImages = Array.isArray(item.images);
 
-            if (isFootSpa && hasMultipleImages) {
-              return (
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    width: screenWidth - 32,
-                    backgroundColor: '#fff',
-                    borderRadius: 16,
-                    padding: 12,
-                    marginBottom: 16,
-                    elevation: 5,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 6,
-                    borderWidth: 0.5,
-                    borderColor: '#e5e5e5',
-                    alignSelf: 'center',
-                    alignItems: 'center',
-                    gap: 12,
-                  }}
-                >
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1 }}>
-                    {item.images.map((img, index) => (
-                      <TouchableOpacity key={index} onPress={() => openImageModal(img)}>
-                        <Image
-                          source={img}
-                          style={{
-                            width: (screenWidth - 96) / 3,
-                            height: 100,
-                            borderRadius: 8,
-                            marginRight: 8,
-                            resizeMode: 'cover',
-                          }}
-                        />
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-
-                  <View style={{ flex: 1, justifyContent: 'center' }}>
-                    <Text style={{ fontSize: 16, fontWeight: '600', color: '#1a1a1a' }}>{item.name}</Text>
-                    <Text style={{ fontSize: 14, color: '#555', marginTop: 4 }}>{item.description}</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: '#d10000', marginTop: 4 }}>₱{item.price}</Text>
-
-                    <View style={{ flexDirection: 'row', marginTop: 12, gap: 6, alignItems: 'center' }}>
-                      <TouchableOpacity
-                        style={{
-                          backgroundColor: '#007d3f',
-                          padding: 6,
-                          borderRadius: 50,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                        onPress={() => toggleFavorite(item)}
-                      >
-                        <Icon
-                          name={isFavorite(item.name) ? 'heart' : 'heart-outline'}
-                          size={18}
-                          color="#fff"
-                        />
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={{
-                          flex: 1,
-                          backgroundColor: '#007d3f',
-                          paddingVertical: 10,
-                          paddingHorizontal: 20,
-                          borderRadius: 100,
-                          alignItems: 'center',
-                          elevation: 3,
-                        }}
-                        onPress={() =>
-                          navigation.navigate('BookingFormScreen', {
-                            serviceName: item.serviceName,
-                            styleName: item.name,
-                            stylePrice: item.price,
-                          })
-                        }
-                      >
-                        <Text
-                          style={{
-                            color: '#fff',
-                            fontSize: 14,
-                            fontWeight: 'bold',
-                            letterSpacing: 0.5,
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          Book Now
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              );
-            }
-
-            return (
-              <BigServiceCard
-                styleData={item}
-                onImagePress={() => openImageModal(item.image)}
-                onBookPress={() =>
-                  navigation.navigate('BookingFormScreen', {
-                    serviceName: item.serviceName,
-                    styleName: item.name,
-                    stylePrice: item.price,
-                  })
-                }
+  if (isFootSpa && hasMultipleImages) {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          width: screenWidth - 32,
+          backgroundColor: '#fff',
+          borderRadius: 16,
+          padding: 12,
+          marginBottom: 16,
+          elevation: 5,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 6,
+          borderWidth: 0.5,
+          borderColor: '#e5e5e5',
+          alignSelf: 'center',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1 }}>
+          {item.images.map((img, index) => (
+            <TouchableOpacity key={index} onPress={() => openImageModal(img)}>
+              <Image
+                source={img}
+                style={{
+                  width: (screenWidth - 96) / 3,
+                  height: 100,
+                  borderRadius: 8,
+                  marginRight: 8,
+                  resizeMode: 'cover',
+                }}
               />
-            );
-          }}
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <Text style={{ fontSize: 16, fontWeight: '600', color: '#1a1a1a' }}>{item.name}</Text>
+          <Text style={{ fontSize: 14, color: '#555', marginTop: 4 }}>{item.description}</Text>
+          <Text style={{ fontSize: 14, fontWeight: '600', color: '#d10000', marginTop: 4 }}>₱{item.price}</Text>
+
+          <View style={{ flexDirection: 'row', marginTop: 12, gap: 6, alignItems: 'center' }}>
+            <TouchableOpacity
+              style={{
+                backgroundColor: '#007d3f',
+                padding: 6,
+                borderRadius: 50,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onPress={() => toggleFavorite({ name: item.serviceName }, { name: item.name })}
+            >
+              <Icon
+                name={isFavorite(item.serviceName, item.name) ? 'heart' : 'heart-outline'}
+                size={18}
+                color="#fff"
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                backgroundColor: '#007d3f',
+                paddingVertical: 10,
+                paddingHorizontal: 20,
+                borderRadius: 100,
+                alignItems: 'center',
+                elevation: 3,
+              }}
+              onPress={() =>
+                navigation.navigate('BookingFormScreen', {
+                  serviceName: item.serviceName,
+                  styleName: item.name,
+                  stylePrice: item.price,
+                })
+              }
+            >
+              <Text
+                style={{
+                  color: '#fff',
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                  letterSpacing: 0.5,
+                  textTransform: 'uppercase',
+                }}
+              >
+                Book Now
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <BigServiceCard
+      serviceName={item.serviceName}  
+      styleData={item}                
+      onImagePress={() => openImageModal(item.image)}
+      onBookPress={() =>
+        navigation.navigate('BookingFormScreen', {
+          serviceName: item.serviceName,
+          styleName: item.name,
+          stylePrice: item.price,
+        })
+      }
+    />
+  );
+}} 
           ListEmptyComponent={
             <Text style={{ textAlign: 'center', color: '#888', marginTop: 20 }}>
               No results found.
@@ -328,6 +330,8 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
+
+// --- styles unchanged ---
 const styles = StyleSheet.create({
   scrollContainer: {
     paddingHorizontal: 16,
@@ -344,7 +348,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
     borderWidth: 1,
     borderColor: '#D4D4D4',
-    elevation: 3,
+    elevation: 2,
   },
   searchIcon: {
     marginRight: 8,
@@ -369,7 +373,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     borderRadius: 16,
     borderColor: '#D4D4D4',
-    elevation: 4,
+    elevation: 3,
   },
   headerLeft: {
     flexDirection: 'row',

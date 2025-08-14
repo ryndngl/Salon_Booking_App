@@ -1,5 +1,4 @@
 // App.js
-import { DefaultTheme, DarkTheme } from '@react-navigation/native';
 import * as WebBrowser from "expo-web-browser";
 WebBrowser.maybeCompleteAuthSession();
 
@@ -52,7 +51,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 // Context
 import { BookingProvider } from "./context/BookingContext.jsx";
-import { DarkModeProvider, useDarkMode } from "./context/DarkModeContext.jsx";
 import { FavoritesProvider } from "./context/FavoritesContext.jsx";
 
 // Screens
@@ -68,7 +66,7 @@ import GetStartedScreen from './screens/GetStartedScreen.jsx';
 import NotificationScreen from './screens/NotificationScreen.jsx';
 import BookingSummaryScreen from './screens/BookingSummaryScreen.jsx';
 import BookingConfirmationScreen from './screens/BookingConfirmationScreen.jsx';
-
+import FavoritesScreen from './screens/FavoritesScreen.jsx';
 // Help & Support Screens
 import FAQScreen from './screens/FAQScreen.jsx';
 import ContactUsScreen from './screens/ContactUsScreen.jsx';
@@ -78,14 +76,11 @@ import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen.jsx';
 const Stack = createNativeStackNavigator();
 const { width, height } = Dimensions.get("window");
 
-// --- Separated AppContent para magamit yung darkMode sa loob ---
-function AppContent() {
+export default function App() {
   const [user, setUser] = useState(null);
   const [isAppReady, setIsAppReady] = useState(false);
   const splashFadeOut = useRef(new Animated.Value(1)).current;
   const [showGetStarted, setShowGetStarted] = useState(false);
-
-  const { darkMode } = useDarkMode(); // <-- Get dark mode state
 
   useEffect(() => {
     let authUnsubscribe; 
@@ -141,7 +136,7 @@ function AppContent() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BookingProvider>
        <FavoritesProvider>
-        <NavigationContainer theme={darkMode ? DarkTheme : DefaultTheme}>
+        <NavigationContainer>
           <Stack.Navigator
             initialRouteName={showGetStarted ? "GetStarted" : user ? "MainTabs" : "Login"}
           >
@@ -205,6 +200,13 @@ function AppContent() {
               component={BookingConfirmationScreen}
               options={{ headerShown: false }}
             />
+
+             <Stack.Screen
+              name="FavoritesScreen"
+              component={FavoritesScreen}
+              options={{ headerShown: false }}
+            />
+
               {/* Help & Support Screens */}
            <Stack.Screen
              name="FAQs"
@@ -228,19 +230,11 @@ function AppContent() {
             />
           </Stack.Navigator>
           
-          <StatusBar style={darkMode ? "light" : "dark"} />
+          <StatusBar style="dark" />
         </NavigationContainer>
        </FavoritesProvider>
       </BookingProvider>
     </GestureHandlerRootView>
-  );
-}
-
-export default function App() {
-  return (
-    <DarkModeProvider>
-       <AppContent />
-    </DarkModeProvider>
   );
 }
 

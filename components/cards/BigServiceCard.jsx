@@ -15,107 +15,136 @@ const screenWidth = Dimensions.get("window").width;
 const cardWidth = (screenWidth - 48) / 2;
 
 const BigServiceCard = ({
+  serviceName,
   styleData,
   onImagePress,
   onBookPress,
   isSoftGel,
   onAddDesignPress,
   isFootSpa,
+  searchCard = false, // New prop to handle search bar cards
 }) => {
   const { toggleFavorite, isFavorite } = useFavorites();
-  const favorite = isFavorite(styleData.name);
-  const hasMultipleImages = Array.isArray(styleData.images);
 
-  if (isFootSpa && hasMultipleImages) {
-    // Foot Spa special multi-image full width card
+  // More reliable favorite checking function
+  const isItemFavorite = () => {
+    if (!styleData || !serviceName) return false;
+    return isFavorite(serviceName, styleData.name);
+  };
+
+  // Enhanced toggle function with logging
+  const handleToggleFavorite = () => {
+    console.log("Toggling favorite for:", serviceName, styleData.name);
+    if (!styleData || !serviceName) {
+      console.warn("Missing required data for favorite toggle");
+      return;
+    }
+    toggleFavorite({ name: serviceName }, styleData);
+  };
+
+  // Foot Spa multi-image card
+  if (isFootSpa && Array.isArray(styleData?.images)) {
     return (
       <View style={styles.fullWidthCard}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ marginBottom: 12 }}
+        >
           {styleData.images.map((img, index) => (
-            <TouchableOpacity key={index} onPress={() => onImagePress(img)}>
+            <TouchableOpacity 
+              key={index} 
+              onPress={() => onImagePress?.(img)}
+            >
               <Image source={img} style={styles.footSpaImage} />
             </TouchableOpacity>
           ))}
         </ScrollView>
 
-        <Text style={styles.styleName}>{styleData.name}</Text>
-        <Text style={styles.description}>
-          A complete foot spa with manicure and pedicure for full relaxation.
-        </Text>
-        <Text style={styles.price}>₱{styleData.price}</Text>
+        <View style={styles.cardContent}>
+          <Text style={styles.styleName}>{styleData.name}</Text>
+          <Text style={styles.description}>
+            {styleData.description || "A complete foot spa with manicure and pedicure for full relaxation."}
+          </Text>
+          <Text style={styles.price}>₱{styleData.price}</Text>
 
-        <View style={styles.bottomRow}>
-          <TouchableOpacity
-            style={styles.heartButton}
-            onPress={() => toggleFavorite(styleData)}
-          >
-            <Ionicons
-              name={favorite ? "heart" : "heart-outline"}
-              size={18}
-              color="#fff"
-            />
-          </TouchableOpacity>
+          <View style={styles.bottomRow}>
+            <TouchableOpacity
+              onPress={handleToggleFavorite}
+              style={styles.heartWrapper}
+              testID="favorite-button"
+            >
+              <Ionicons
+                name={isItemFavorite() ? "heart" : "heart-outline"}
+                size={searchCard ? 20 : 22}
+                color={isItemFavorite() ? "red" : "#555"}
+              />
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.bookNowButton} onPress={onBookPress}>
-            <Text style={styles.bookNowButtonText}>Book Now</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.bookNowButton, searchCard && styles.searchBookButton]} 
+              onPress={onBookPress}
+            >
+              <Text style={styles.bookNowButtonText}>Book Now</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
   }
 
-  // Default card for other styles (including Soft Gel)
+  // Default card for other styles
   return (
-    <View style={styles.card}>
-      <TouchableOpacity onPress={() => onImagePress(styleData.image)}>
-        <View style={styles.imageWrapper}>
+    <View style={[styles.card, searchCard && styles.searchCard]}>
+      <TouchableOpacity onPress={() => onImagePress?.(styleData.image)}>
+        <View style={[styles.imageWrapper, searchCard && styles.searchImageWrapper]}>
           <Image
             source={
               typeof styleData.image === "string"
                 ? { uri: styleData.image }
                 : styleData.image
             }
-            style={styles.image}
+            style={[styles.image, searchCard && styles.searchImage]}
           />
         </View>
       </TouchableOpacity>
 
       <View style={styles.cardContent}>
         <View style={styles.namePriceRow}>
-          <Text style={styles.styleName} numberOfLines={1}>
-            {styleData.name}
+          <Text style={[styles.styleName, searchCard && styles.searchStyleName]} numberOfLines={1}>
+            {styleData?.name || "Service Name"}
           </Text>
-          <Text style={styles.price}>₱{styleData.price}</Text>
+          <Text style={[styles.price, searchCard && styles.searchPrice]}>
+            ₱{styleData?.price || "0"}
+          </Text>
         </View>
 
-        {styleData.description && (
-          <Text style={styles.description} numberOfLines={3}>
+        {styleData?.description && (
+          <Text 
+            style={[styles.description, searchCard && styles.searchDescription]} 
+            numberOfLines={searchCard ? 1 : 3}
+          >
             {styleData.description}
           </Text>
         )}
 
-        {isSoftGel && (
-          <TouchableOpacity
-            style={styles.addDesignButton}
-            onPress={onAddDesignPress}
-          >
-            <Text style={styles.addDesignText}>+ Design</Text>
-          </TouchableOpacity>
-        )}
-
         <View style={styles.bottomRow}>
           <TouchableOpacity
-            style={styles.heartButton}
-            onPress={() => toggleFavorite(styleData)}
+            onPress={handleToggleFavorite}
+            style={styles.heartWrapper}
+            testID="favorite-button"
           >
             <Ionicons
-              name={favorite ? "heart" : "heart-outline"}
-              size={18}
-              color="#fff"
+              name={isItemFavorite() ? "heart" : "heart-outline"}
+              size={searchCard ? 20 : 26}
+              color={isItemFavorite() ? "red" : "#555"}
             />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.bookNowButton} onPress={onBookPress}>
+          <TouchableOpacity 
+            style={[styles.bookNowButton, searchCard && styles.searchBookButton]} 
+            onPress={onBookPress}
+          >
             <Text style={styles.bookNowButtonText}>Book Now</Text>
           </TouchableOpacity>
         </View>
@@ -135,6 +164,13 @@ const styles = StyleSheet.create({
     borderWidth: 0.6,
     borderColor: "#e2e2e2",
   },
+  searchCard: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    marginBottom: 12,
+  },
   fullWidthCard: {
     backgroundColor: "#fff",
     borderRadius: 16,
@@ -152,10 +188,19 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     overflow: "hidden",
   },
+  searchImageWrapper: {
+    width: 80,
+    height: 80,
+    borderRadius: 12,
+    marginRight: 12,
+  },
   image: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+  },
+  searchImage: {
+    borderRadius: 12,
   },
   footSpaImage: {
     width: (screenWidth - 64) / 3,
@@ -166,6 +211,7 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     padding: 12,
+    flex: 1,
   },
   namePriceRow: {
     flexDirection: "row",
@@ -180,10 +226,16 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 4,
   },
+  searchStyleName: {
+    fontSize: 14,
+  },
   price: {
     fontSize: 14,
     fontWeight: "700",
     color: "#d10000",
+  },
+  searchPrice: {
+    fontSize: 13,
   },
   description: {
     fontSize: 13,
@@ -191,24 +243,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     lineHeight: 18,
   },
-  addDesignButton: {
-    backgroundColor: "#f1c40f",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 50,
-    alignItems: "center",
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  addDesignText: {
-    color: "#1a1a1a",
-    fontSize: 13,
-    fontWeight: "600",
-    letterSpacing: 0.3,
+  searchDescription: {
+    marginBottom: 8,
+    fontSize: 12,
   },
   bottomRow: {
     flexDirection: "row",
@@ -217,12 +254,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     gap: 6,
   },
-  heartButton: {
-    backgroundColor: "#007d3f",
-    padding: 6,
-    borderRadius: 50,
-    alignItems: "center",
-    justifyContent: "center",
+  heartWrapper: {
+    padding: 4,
   },
   bookNowButton: {
     backgroundColor: "#007d3f",
@@ -234,6 +267,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: 40,
+  },
+  searchBookButton: {
+    height: 35,
+    paddingHorizontal: 12,
   },
   bookNowButtonText: {
     color: "#fff",

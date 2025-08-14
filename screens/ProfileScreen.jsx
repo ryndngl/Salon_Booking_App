@@ -14,73 +14,11 @@ import {
 } from "react-native";
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useDarkMode } from '../context/DarkModeContext'; // Import global context
+import { useFavorites } from '../context/FavoritesContext';
+import { useNavigation } from '@react-navigation/native';
 
-// Import mo muna itong StyleSheet para sa Dark Mode styles
-const darkStyles = StyleSheet.create({
-  container: {
-    backgroundColor: "#121212", // Dark background
-  },
-  header: {
-    backgroundColor: '#1E1E1E', // Dark header background
-    borderBottomColor: '#2C2C2C', // Dark border
-  },
-  headerTitle: {
-    color: '#E0E0E0', // Light text
-  },
-  profileCard: {
-    backgroundColor: '#1E1E1E', // Dark card background
-  },
-  userName: {
-    color: '#E0E0E0', // Light text
-  },
-  userEmail: {
-    color: '#B0B0B0', // Lighter text
-  },
-  userPhone: {
-    color: '#B0B0B0', // Lighter text
-  },
-  phoneInput: {
-    backgroundColor: '#2C2C2C', // Dark input field
-    borderColor: "#3A3A3A",
-    color: '#E0E0E0', // Light text
-  },
-  menuSection: {
-    backgroundColor: '#1E1E1E', // Dark menu section background
-  },
-  sectionTitle: {
-    color: '#E0E0E0', // Light text
-  },
-  placeholderItem: {
-    backgroundColor: '#1E1E1E',
-  },
-  placeholderText: {
-    color: '#777', // Darker text
-  },
-  menuItemText: {
-    color: '#E0E0E0', // Light text
-  },
-  menuDivider: {
-    backgroundColor: '#2C2C2C', // Darker divider
-  },
-  versionContainer: {
-    backgroundColor: "#121212", // same as container
-  },
-  versionText: {
-    color: '#777', // Darker text
-  },
-  confirmBox: {
-    backgroundColor: "#1E1E1E", // Dark modal background
-  },
-  confirmTitle: {
-    color: "#E0E0E0", // Light text
-  },
-  confirmMessage: {
-    color: "#B0B0B0", // Lighter text
-  },
-});
-
-export default function ProfileScreen({ navigation }) {
+export default function ProfileScreen() {
+  const navigation = useNavigation();
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [logoutSuccessVisible, setLogoutSuccessVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
@@ -88,10 +26,8 @@ export default function ProfileScreen({ navigation }) {
 
   const [bookingReminders, setBookingReminders] = useState(true);
   const [promos, setPromos] = useState(false);
+  const { favorites } = useFavorites();
   
-  // Use global dark mode context instead of local state
-  const { darkMode, toggleDarkMode } = useDarkMode();
-
   const [user, setUser] = useState({
     uid: null,
     name: "",
@@ -99,10 +35,8 @@ export default function ProfileScreen({ navigation }) {
     phone: "",
     photo: "",
   });
-
   const [phoneEditable, setPhoneEditable] = useState(false);
 
-  // Fetch logged-in user info
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -120,89 +54,61 @@ export default function ProfileScreen({ navigation }) {
     return () => unsubscribe();
   }, []);
 
-  // Combined styles using a conditional approach
-  const combinedStyles = (lightStyle, darkStyle) => {
-    return [lightStyle, darkMode && darkStyle];
-  };
-
   const confirmLogout = () => setConfirmVisible(true);
 
-const handleLogout = async () => {
-  setConfirmVisible(false);
-  const auth = getAuth();
-  try {
-    await signOut(auth);
+  const handleLogout = async () => {
+    setConfirmVisible(false);
+    const auth = getAuth();
+    try {
+      await signOut(auth);
 
-    // Ipakita modal at reset animation values
-    setLogoutSuccessVisible(true);
-    scaleAnim.setValue(0.5);
-    fadeAnim.setValue(0);
+      setLogoutSuccessVisible(true);
+      scaleAnim.setValue(0.5);
+      fadeAnim.setValue(0);
 
-    // Bounce + fade in animation
-    Animated.parallel([
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        friction: 3, // mas mababa = mas bounce
-        tension: 120, // dagdag energy sa bounce
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 300,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    // After 2 seconds, fade out at balik sa login
-    setTimeout(() => {
       Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 200,
-          easing: Easing.in(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 0.8,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        setLogoutSuccessVisible(false);
-        navigation.replace("Login");
-      });
-    }, 2000);
-    
-  } catch (error) {
-    console.error("Logout failed:", error);
-  }
-};
+        Animated.spring(scaleAnim, { toValue: 1, friction: 3, tension: 120, useNativeDriver: true }),
+        Animated.timing(fadeAnim, { toValue: 1, duration: 300, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+      ]).start();
 
+      setTimeout(() => {
+        Animated.parallel([
+          Animated.timing(fadeAnim, { toValue: 0, duration: 200, easing: Easing.in(Easing.ease), useNativeDriver: true }),
+          Animated.timing(scaleAnim, { toValue: 0.8, duration: 200, useNativeDriver: true }),
+        ]).start(() => {
+          setLogoutSuccessVisible(false);
+          navigation.replace("Login");
+        });
+      }, 2000);
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   const pastBookings = [
     { service: 'Hair Cut', date: 'Jan 25, 2025' },
     { service: 'Soft Gel', date: 'Jan 10, 2025' },
     { service: 'Hair Color', date: 'Dec 28, 2024' },
   ];
-
   const paymentMethods = [
     { name: 'GCash', isDefault: true },
     { name: 'Credit/Debit Card', isDefault: false },
     { name: 'Cash on Service', isDefault: false },
   ];
-
   const [loyaltyPoints, setLoyaltyPoints] = useState(150);
 
   const menuSections = [
-    // Favorites Section
     {
       title: 'Favorites',
       items: [
-        { icon: 'favorite', label: 'Your saved services will appear here', isPlaceholder: true },
+        {
+          key: 'favorites-nav',
+          icon: 'favorite',
+          label: `View All Favorites (${favorites.length})`,
+          onPress: () => navigation.navigate('FavoritesScreen')
+        }
       ]
     },
-    // Booking History Section
     {
       title: 'Past Bookings',
       items: pastBookings.map(booking => ({
@@ -212,7 +118,6 @@ const handleLogout = async () => {
         actionText: 'Book Again'
       }))
     },
-    // Payment Methods Section
     {
       title: 'Payment Methods',
       items: [
@@ -225,7 +130,6 @@ const handleLogout = async () => {
         { icon: 'add', label: 'Add Payment Method', hasAction: true }
       ]
     },
-    // Loyalty & Rewards Section
     {
       title: 'Loyalty & Rewards',
       items: [
@@ -233,17 +137,14 @@ const handleLogout = async () => {
         { icon: 'redeem', label: 'Redeem Rewards', hasAction: true }
       ]
     },
-    // Notifications & Settings Section
     {
       title: 'Notifications & Settings',
       items: [
         { icon: 'notifications', label: 'Booking Reminders', hasSwitch: true, value: bookingReminders, onChange: setBookingReminders },
         { icon: 'local-offer', label: 'Promos & Offers', hasSwitch: true, value: promos, onChange: setPromos },
-        { icon: 'dark-mode', label: 'Dark Mode', hasSwitch: true, value: darkMode, onChange: toggleDarkMode }, // Use global toggle
         { icon: 'lock', label: 'Change Password', hasAction: true }
       ]
     },
-    // Help & Support Section - Updated with navigation
     {
       title: 'Help & Support',
       items: [
@@ -253,7 +154,6 @@ const handleLogout = async () => {
         { icon: 'privacy-tip', label: 'Privacy Policy', onPress: () => navigation.navigate('PrivacyPolicy') }
       ]
     },
-    // Logout Section
     {
       title: '',
       items: [
@@ -264,23 +164,17 @@ const handleLogout = async () => {
 
   return (
     <>
-      <View style={combinedStyles(styles.container, darkStyles.container)}>
-        {/* Header */}
-        <View style={combinedStyles(styles.header, darkStyles.header)}>
+      <View style={styles.container}>
+        <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="arrow-back" size={24} color={darkMode ? "#E0E0E0" : "#333"} />
+            <Icon name="arrow-back" size={24} color="#333" />
           </TouchableOpacity>
-          <Text style={combinedStyles(styles.headerTitle, darkStyles.headerTitle)}>My Profile</Text>
-          <Icon name="settings" size={24} color={darkMode ? "#E0E0E0" : "#333"} />
+          <Text style={styles.headerTitle}>My Profile</Text>
+          <Icon name="settings" size={24} color="#333" />
         </View>
 
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Profile Section */}
-          <View style={combinedStyles(styles.profileCard, darkStyles.profileCard)}>
+        <ScrollView style={styles.scrollView} contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
+          <View style={styles.profileCard}>
             <View style={styles.profileHeader}>
               <View style={styles.profileImageContainer}>
                 {user.photo ? (
@@ -295,132 +189,96 @@ const handleLogout = async () => {
                 </View>
               </View>
               <View style={styles.profileInfo}>
-                <Text style={combinedStyles(styles.userName, darkStyles.userName)}>{user.name}</Text>
-                <Text style={combinedStyles(styles.userEmail, darkStyles.userEmail)}>{user.email}</Text>
+                <Text style={styles.userName}>{user.name}</Text>
+                <Text style={styles.userEmail}>{user.email}</Text>
                 {phoneEditable ? (
                   <TextInput
-                    style={combinedStyles(styles.phoneInput, darkStyles.phoneInput)}
+                    style={styles.phoneInput}
                     placeholder="+63 --- --- ----"
                     value={user.phone}
                     onChangeText={(text) => setUser({ ...user, phone: text })}
                     keyboardType="phone-pad"
-                    placeholderTextColor={darkMode ? "#777" : "#aaa"}
+                    placeholderTextColor="#aaa"
                   />
                 ) : (
-                  <Text style={combinedStyles(styles.userPhone, darkStyles.userPhone)}>
+                  <Text style={styles.userPhone}>
                     {user.phone || "No phone number"}
                   </Text>
                 )}
               </View>
             </View>
-            <TouchableOpacity
-              style={styles.editButton}
-              onPress={() => setPhoneEditable(!phoneEditable)}
-            >
-              <Text style={styles.editButtonText}>
-                {phoneEditable ? "Save Phone" : "Edit Profile"}
-              </Text>
+            <TouchableOpacity style={styles.editButton} onPress={() => setPhoneEditable(!phoneEditable)}>
+              <Text style={styles.editButtonText}>{phoneEditable ? "Save Phone" : "Edit Profile"}</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Menu Sections */}
           <View style={styles.menuContainer}>
             {menuSections.map((section, sectionIndex) => (
-              <View key={sectionIndex} style={combinedStyles(styles.menuSection, darkStyles.menuSection)}>
+              <View key={sectionIndex} style={styles.menuSection}>
                 {section.title && (
-                  <Text style={combinedStyles(styles.sectionTitle, darkStyles.sectionTitle)}>{section.title}</Text>
+                  <Text style={styles.sectionTitle}>{section.title}</Text>
                 )}
-                
                 {section.items.map((item, itemIndex) => (
                   <View key={itemIndex}>
-                    {item.isPlaceholder ? (
-                      <View style={combinedStyles(styles.placeholderItem, darkStyles.placeholderItem)}>
-                        <Icon name={item.icon} size={20} color={darkMode ? "#444" : "#ccc"} />
-                        <Text style={combinedStyles(styles.placeholderText, darkStyles.placeholderText)}>{item.label}</Text>
+                    <TouchableOpacity style={styles.menuItem} onPress={item.onPress || (() => {})}>
+                      <View style={styles.menuItemLeft}>
+                        <Icon 
+                          name={item.icon} 
+                          size={20} 
+                          color={item.isLogout ? "#d13f3f" : item.isPoints ? "#4CAF50" : "#666"}
+                        />
+                        <View style={styles.menuItemContent}>
+                          <Text style={[
+                            styles.menuItemText,
+                            item.isLogout && styles.logoutText,
+                            item.isPoints && styles.pointsText
+                          ]}>
+                            {item.label}
+                          </Text>
+                          {item.isDefault && <Text style={styles.defaultText}>Default</Text>}
+                        </View>
                       </View>
-                    ) : (
-                      <TouchableOpacity 
-                        style={styles.menuItem}
-                        onPress={item.onPress || (() => {})}
-                      >
-                        <View style={styles.menuItemLeft}>
-                          <Icon 
-                            name={item.icon} 
-                            size={20} 
-                            color={
-                              item.isLogout ? "#d13f3f" : item.isPoints ? "#4CAF50" : (darkMode ? "#B0B0B0" : "#666")
-                            } 
+                      <View style={styles.menuItemRight}>
+                        {item.hasSwitch && (
+                          <Switch
+                            value={item.value}
+                            onValueChange={item.onChange}
+                            trackColor={{ false: "#ddd", true: "#4CAF50" }}
+                            thumbColor="#fff"
                           />
-                          <View style={styles.menuItemContent}>
-                            <Text style={[
-                              combinedStyles(styles.menuItemText, darkStyles.menuItemText),
-                              item.isLogout && styles.logoutText,
-                              item.isPoints && styles.pointsText
-                            ]}>
-                              {item.label}
-                            </Text>
-                            {item.isDefault && (
-                              <Text style={styles.defaultText}>Default</Text>
-                            )}
-                          </View>
-                        </View>
-                        
-                        <View style={styles.menuItemRight}>
-                          {item.hasSwitch && (
-                            <Switch
-                              value={item.value}
-                              onValueChange={item.onChange}
-                              trackColor={{ false: darkMode ? "#444" : "#ddd", true: "#4CAF50" }}
-                              thumbColor={darkMode ? "#fff" : "#fff"}
-                            />
-                          )}
-                          {item.hasAction && (
-                            <TouchableOpacity style={styles.actionButton}>
-                              <Text style={styles.actionText}>
-                                {item.actionText || 'View'}
-                              </Text>
-                            </TouchableOpacity>
-                          )}
-                          {!item.hasSwitch && !item.hasAction && !item.isLogout && (
-                            <Icon name="chevron-right" size={20} color={darkMode ? "#444" : "#ccc"} />
-                          )}
-                        </View>
-                      </TouchableOpacity>
-                    )}
+                        )}
+                        {!item.hasSwitch && !item.hasAction && !item.isLogout && (
+                          <Icon name="chevron-right" size={20} color="#ccc" />
+                        )}
+                      </View>
+                    </TouchableOpacity>
                     {itemIndex < section.items.length - 1 && (
-                      <View style={combinedStyles(styles.menuDivider, darkStyles.menuDivider)} />
+                      <View style={styles.menuDivider} />
                     )}
                   </View>
                 ))}
               </View>
             ))}
           </View>
-          {/* App Version */}
-          <View style={combinedStyles(styles.versionContainer, darkStyles.versionContainer)}>
-            <Text style={combinedStyles(styles.versionText, darkStyles.versionText)}>App version 0.1</Text>
+
+          <View style={styles.versionContainer}>
+            <Text style={styles.versionText}>App version 0.1</Text>
           </View>
         </ScrollView>
       </View>
 
-      {/* Confirmation Modal */}
       <Modal transparent visible={confirmVisible} animationType="fade" statusBarTranslucent>
         <View style={styles.confirmContainer}>
-          <View style={combinedStyles(styles.confirmBox, darkStyles.confirmBox)}>
-            <Text style={combinedStyles(styles.confirmTitle, darkStyles.confirmTitle)}>Are you sure?</Text>
-            <Text style={combinedStyles(styles.confirmMessage, darkStyles.confirmMessage)}>
+          <View style={styles.confirmBox}>
+            <Text style={styles.confirmTitle}>Are you sure?</Text>
+            <Text style={styles.confirmMessage}>
               Do you really want to log out?
             </Text>
             <View style={styles.confirmButtons}>
-              <TouchableOpacity
-                style={[styles.confirmBtn, { backgroundColor: "#d13f3f" }]}
-                onPress={handleLogout}
-              >
+              <TouchableOpacity style={[styles.confirmBtn, { backgroundColor: "#d13f3f" }]} onPress={handleLogout}>
                 <Text style={styles.confirmBtnText}>Yes</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.confirmBtn, { backgroundColor: "#ff9900" }]}
-                onPress={() => setConfirmVisible(false)}
-              >
+              <TouchableOpacity style={[styles.confirmBtn, { backgroundColor: "#ff9900" }]} onPress={() => setConfirmVisible(false)}>
                 <Text style={styles.confirmBtnText}>Cancel</Text>
               </TouchableOpacity>
             </View>
@@ -428,19 +286,15 @@ const handleLogout = async () => {
         </View>
       </Modal>
 
-      {/* Logout Success Modal */}
       <Modal transparent visible={logoutSuccessVisible} animationType="fade" statusBarTranslucent>
         <View style={styles.confirmContainer}>
           <Animated.View style={[
-            combinedStyles(styles.confirmBox, darkStyles.confirmBox),
-            {
-              transform: [{ scale: scaleAnim }],
-              opacity: fadeAnim,
-            },
+            styles.confirmBox,
+            { transform: [{ scale: scaleAnim }], opacity: fadeAnim },
           ]}>
             <Icon name="logout" size={48} color="#4CAF50" />
-            <Text style={combinedStyles(styles.confirmTitle, darkStyles.confirmTitle)}>Logged Out Successfully!</Text>
-            <Text style={combinedStyles(styles.confirmMessage, darkStyles.confirmMessage)}>Redirecting to login...</Text>
+            <Text style={styles.confirmTitle}>Logged Out Successfully!</Text>
+            <Text style={styles.confirmMessage}>Redirecting to login...</Text>
           </Animated.View>
         </View>
       </Modal>
@@ -676,6 +530,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 8,
     marginTop: 8,
+    color: "#333",
   },
   confirmMessage: {
     fontSize: 16,

@@ -31,7 +31,7 @@ const PaymentMethodScreen = () => {
     };
 
     navigation.navigate("BookingConfirmationScreen", {
-      bookingDetails: updatedBooking, // ✅ wrap in bookingDetails key
+      bookingDetails: updatedBooking,
     });
   };
   const paymentOptions = [

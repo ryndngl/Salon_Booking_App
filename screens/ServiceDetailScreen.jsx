@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,7 +21,23 @@ const cardWidth = (screenWidth - 48) / 2;
 const ServiceDetailScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { service } = route.params;
+
+  // FIX: Provide a default empty object for route.params to prevent errors
+  const { service, initialStyle } = route.params || {};
+
+  // FIX: Add a robust check for the service object before any logic
+  if (!service || !service.name || !service.styles) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ fontSize: 16 }}>Service not found. Please go back.</Text>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={{ marginTop: 20, padding: 10, backgroundColor: '#7a0000', borderRadius: 5 }}>
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>Go Back</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
 
   const isHairCut = service.name.trim().toLowerCase() === 'hair cut';
   const isHairColor = service.name.trim().toLowerCase() === 'hair color';
@@ -35,12 +51,7 @@ const ServiceDetailScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  if (!service || !service.name || !service.styles) {
-    navigation.goBack();
-    return null;
-  }
-
-  const { toggleFavorite, isFavorite } = useFavorites();
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
   const filteredStyles = service.styles.filter((style) => {
     if (isHairCut || isHairColor) {
@@ -67,7 +78,8 @@ const ServiceDetailScreen = () => {
 
   const renderCard = (style, index) => {
     const hasMultipleImages = Array.isArray(style.images);
-    const favorite = isFavorite(style.name);
+    // FIX: Pass both service.name and style.name to isFavorite
+    const favorite = isFavorite(service.name, style.name);
     const cardStyle = hasMultipleImages ? styles.fullWidthCard : styles.card;
 
     return (
@@ -106,13 +118,13 @@ style={isHairCut ? styles.image : styles.fullWidthImage} />
 
           <View style={styles.bottomRow}>
             <TouchableOpacity
-              style={styles.heartButton}
-              onPress={() => toggleFavorite(style)}
+             onPress={() => toggleFavorite(service, style)}
+             style={styles.heartWrapper}
             >
               <Ionicons
-                name={favorite ? "heart" : "heart-outline"}
-                size={18}
-                color="#fff"
+                name={favorite ? 'heart' : 'heart-outline'}
+                size={26}
+                color={favorite ? 'red' : '#555'}
               />
             </TouchableOpacity>
 
@@ -248,9 +260,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     width: cardWidth,
     overflow: 'hidden',
-    elevation: 5,
+    elevation: 3,
     borderWidth: 0.5,
-    borderColor: '#e5e5e5',
+    borderColor: '#D4D4D4',
   },
   fullWidthCard: {
     backgroundColor: '#ffffff',
@@ -258,9 +270,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     width: '100%',
     overflow: 'hidden',
-    elevation: 5,
+    elevation: 3,
     borderWidth: 0.5,
-    borderColor: '#e5e5e5',
+    borderColor: '#D4D4D4',
     alignSelf: 'center',
   },
   imageWrapper: {
@@ -275,7 +287,7 @@ const styles = StyleSheet.create({
   },
   fullWidthImage: {
     width: '100%',
-    height: 200, // Adjust height as needed
+    height: 200,
     resizeMode: 'cover',
   },
   cardContent: {
@@ -315,13 +327,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
     gap:6,
   },
-  heartButton: {
-    backgroundColor: "#007d3f",
-    padding: 6,
-    borderRadius: 90,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  heartWrapper: {
+  padding: 4, 
+},
   bookNowButton: {
     backgroundColor: "#007d3f",
     paddingVertical: 8,

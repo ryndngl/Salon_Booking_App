@@ -329,8 +329,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 30,
-    borderColor: "#666",
-    elevation: 2,
+    borderColor: "#D4D4D4",
+    elevation: 3,
     alignItems: "center",
   },
   title: {
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     height: 55,
-    borderColor: "#666",
+    borderColor: "#D4D4D4",
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 20,
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     height: 55,
-    borderColor: "#666",
+    borderColor: "#D4D4D4",
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 15,
