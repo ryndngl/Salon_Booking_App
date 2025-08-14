@@ -19,14 +19,9 @@ LogBox.ignoreLogs([
   "Warning: Text strings must be rendered within a <Text> component.",
 ]);
 
-// Firebase
+// Firebase 
 import { initializeApp, getApps } from "firebase/app";
-import {
-  initializeAuth,
-  getReactNativePersistence,
-  getAuth,
-  onAuthStateChanged,
-} from "firebase/auth";
+import {initializeAuth,getReactNativePersistence,getAuth,onAuthStateChanged,} from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
@@ -56,29 +51,29 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 // Context
-import { BookingProvider } from "./context/BookingContext";
-import { DarkModeProvider, useDarkMode } from "./context/DarkModeContext";
-import { FavoritesProvider } from "./context/FavoritesContext";
+import { BookingProvider } from "./context/BookingContext.jsx";
+import { DarkModeProvider, useDarkMode } from "./context/DarkModeContext.jsx";
+import { FavoritesProvider } from "./context/FavoritesContext.jsx";
 
 // Screens
-import LoginScreen from './screens/LoginScreen';
-import RegisterScreen from './screens/RegisterScreen';
-import BottomTabNavigator from './navigation/BottomTabNavigator';
-import ServicesScreen from './screens/ServicesScreen';
-import ServiceDetailScreen from './screens/ServiceDetailScreen';
-import BookingScreen from './screens/BookingScreen';
-import BookingFormScreen from './screens/BookingFormScreen';
-import PaymentMethodScreen from './screens/PaymentMethodScreen';
-import GetStartedScreen from './screens/GetStartedScreen';
-import NotificationScreen from './screens/NotificationScreen';
-import BookingSummaryScreen from './screens/BookingSummaryScreen';
-import BookingConfirmationScreen from './screens/BookingConfirmationScreen';
+import LoginScreen from './screens/LoginScreen.jsx';
+import RegisterScreen from './screens/RegisterScreen.jsx';
+import BottomTabNavigator from './navigation/BottomTabNavigator.jsx';
+import ServicesScreen from './screens/ServicesScreen.jsx';
+import ServiceDetailScreen from './screens/ServiceDetailScreen.jsx';
+import BookingScreen from './screens/BookingScreen.jsx';
+import BookingFormScreen from './screens/BookingFormScreen.jsx';
+import PaymentMethodScreen from './screens/PaymentMethodScreen.jsx';
+import GetStartedScreen from './screens/GetStartedScreen.jsx';
+import NotificationScreen from './screens/NotificationScreen.jsx';
+import BookingSummaryScreen from './screens/BookingSummaryScreen.jsx';
+import BookingConfirmationScreen from './screens/BookingConfirmationScreen.jsx';
 
 // Help & Support Screens
-import FAQScreen from './screens/FAQScreen';
-import ContactUsScreen from './screens/ContactUsScreen';
-import TermsConditionsScreen from './screens/TermsConditionsScreen';
-import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
+import FAQScreen from './screens/FAQScreen.jsx';
+import ContactUsScreen from './screens/ContactUsScreen.jsx';
+import TermsConditionsScreen from './screens/TermsConditionsScreen.jsx';
+import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen.jsx';
 
 const Stack = createNativeStackNavigator();
 const { width, height } = Dimensions.get("window");

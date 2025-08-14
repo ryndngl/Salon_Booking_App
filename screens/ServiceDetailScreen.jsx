@@ -17,37 +17,35 @@ import { useFavorites } from "../context/FavoritesContext";
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = (screenWidth - 48) / 2;
-const categories = ['Men', 'Women', 'Kids'];
 
 const ServiceDetailScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const { service } = route.params;
 
-  const [selectedCategory, setSelectedCategory] = useState('Men');
+  const isHairCut = service.name.trim().toLowerCase() === 'hair cut';
+  const isHairColor = service.name.trim().toLowerCase() === 'hair color';
+
+  const haircutCategories = ['Men', 'Women', 'Kids'];
+  const hairColorCategories = ['Root Touch Up', 'Full Hair', 'Highlight', 'Balayage'];
+  
+  const initialCategory = isHairCut ? 'Men' : (isHairColor ? 'Root Touch Up' : null);
+
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  // Check if service data is valid before proceeding
   if (!service || !service.name || !service.styles) {
-    // Navigate back to the previous screen if service data is missing
     navigation.goBack();
     return null;
   }
 
   const { toggleFavorite, isFavorite } = useFavorites();
-  
-  // Mas specific na conditional checks para mas malinaw
-  const isHairCut = service.name.trim().toLowerCase() === 'hair cut';
-  const isFootSpa = service.name.trim().toLowerCase() === 'foot spa';
 
-  // Na-fix na filtering logic
   const filteredStyles = service.styles.filter((style) => {
-    if (isHairCut) {
-      // Filter by category only for 'Hair Cut'
+    if (isHairCut || isHairColor) {
       return style.category === selectedCategory;
     }
-    // Para sa ibang services (Nail Care, Foot Spa), ibalik lahat ng styles
     return true;
   });
 
@@ -64,16 +62,82 @@ const ServiceDetailScreen = () => {
     });
   };
 
-  const cardStyle = isFootSpa? styles.fullWidthCard : styles.card;
+  const footSpaPackage = filteredStyles.find(style => Array.isArray(style.images));
+  const otherStyles = filteredStyles.filter(style => !Array.isArray(style.images));
+
+  const renderCard = (style, index) => {
+    const hasMultipleImages = Array.isArray(style.images);
+    const favorite = isFavorite(style.name);
+    const cardStyle = hasMultipleImages ? styles.fullWidthCard : styles.card;
+
+    return (
+      <View
+        key={index}
+        style={cardStyle}
+      >
+        {hasMultipleImages ? (
+          <View style={styles.footSpaImagesContainer}>
+            {style.images.map((img, idx) => (
+              <TouchableOpacity key={idx} onPress={() => openImageModal(img)}>
+                <Image source={img} style={styles.footSpaImage} />
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : (
+          <TouchableOpacity onPress={() => openImageModal(style.image)}>
+            <View style={styles.imageWrapper}>
+              <Image source={style.image} 
+style={isHairCut ? styles.image : styles.fullWidthImage} />
+            </View>
+          </TouchableOpacity>
+        )}
+
+        <View style={styles.cardContent}>
+          <View style={styles.namePriceRow}>
+            <Text style={styles.styleName}>{style.name}</Text>
+            <Text style={styles.price}>₱{style.price}</Text>
+          </View>
+
+          {style.description && (
+            <Text style={styles.description}>
+              {style.description}
+            </Text>
+          )}
+
+          <View style={styles.bottomRow}>
+            <TouchableOpacity
+              style={styles.heartButton}
+              onPress={() => toggleFavorite(style)}
+            >
+              <Ionicons
+                name={favorite ? "heart" : "heart-outline"}
+                size={18}
+                color="#fff"
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.bookNowButton}
+              onPress={() => goToBooking(style)}
+            >
+              <Text style={styles.bookNowButtonText}>Book Now</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  const categoriesToRender = isHairCut ? haircutCategories : (isHairColor ? hairColorCategories : []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>{service.name}</Text>
 
-        {isHairCut && (
+        {(isHairCut || isHairColor) && (
           <View style={styles.tabs}>
-            {categories.map((category) => (
+            {categoriesToRender.map((category) => (
               <TouchableOpacity
                 key={category}
                 style={[
@@ -95,73 +159,20 @@ const ServiceDetailScreen = () => {
           </View>
         )}
 
-        <View style={styles.grid}>
-          {filteredStyles.map((style, index) => {
-            const hasMultipleImages = Array.isArray(style.images);
-            const favorite = isFavorite(style.name);
+        {footSpaPackage && (
+          <View>
+            {renderCard(footSpaPackage)}
+          </View>
+        )}
 
-            return (
-              <View
-                key={index}
-                style={cardStyle}
-              >
-                {/* Image */}
-                {hasMultipleImages ? (
-                  <View style={styles.footSpaImagesContainer}>
-                    {style.images.map((img, idx) => (
-                      <TouchableOpacity key={idx} onPress={() => openImageModal(img)}>
-                        <Image source={img} style={styles.footSpaImage} />
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                ) : (
-                  <TouchableOpacity onPress={() => openImageModal(style.image)}>
-                    <View style={styles.imageWrapper}>
-                      <Image source={style.image} style={isHairCut ? styles.image : styles.fullWidthImage} />
-                    </View>
-                  </TouchableOpacity>
-                )}
+        {otherStyles.length > 0 && (
+          <View style={styles.grid}>
+            {otherStyles.map((style, index) => renderCard(style, index))}
+          </View>
+        )}
 
-                {/* Card Content */}
-                <View style={styles.cardContent}>
-                  <View style={styles.namePriceRow}>
-                    <Text style={styles.styleName}>{style.name}</Text>
-                    <Text style={styles.price}>₱{style.price}</Text>
-                  </View>
-
-                  {style.description && (
-                    <Text style={styles.description}>
-                      {style.description}
-                    </Text>
-                  )}
-
-                  <View style={styles.bottomRow}>
-                    <TouchableOpacity
-                      style={styles.heartButton}
-                      onPress={() => toggleFavorite(style)}
-                    >
-                      <Ionicons
-                        name={favorite ? "heart" : "heart-outline"}
-                        size={18}
-                        color="#fff"
-                      />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.bookNowButton}
-                      onPress={() => goToBooking(style)}
-                    >
-                      <Text style={styles.bookNowButtonText}>Book Now</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            );
-          })}
-        </View>
       </ScrollView>
 
-      {/* Fullscreen Image Modal */}
       <Modal
         visible={modalVisible}
         transparent
@@ -307,7 +318,7 @@ const styles = StyleSheet.create({
   heartButton: {
     backgroundColor: "#007d3f",
     padding: 6,
-    borderRadius: 50,
+    borderRadius: 90,
     alignItems: "center",
     justifyContent: "center",
   },

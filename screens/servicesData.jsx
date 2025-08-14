@@ -330,30 +330,78 @@ export const services = [
   id: 2,
   name: 'Hair Color',
   styles: [
-    {
+ // ROOT TOUCH UP CATEGORY
+
+
+
+
+
+
+  // FULL HAIR CATEGORY
+   {
       id: 1,
+      name: 'Inky Grey',
+      category: 'Full Hair',
+      price: 200,
+      description: "A deep grey shade with a sleek and mysterious allure.",
+      image: require ('../assets/Hair Color/Inky Grey.webp'),
+    },
+    {
+      id: 2,
       name: 'Blonde',
+      category: 'Full Hair',
       price: 180,
       description: "A bright, golden tone that adds warmth and radiance to your look.",
       image: require ('../assets/Hair Color/Blonde.webp'),
     },
     {
-      id: 2,
-      name: 'Ash Blonde',
+      id: 3,
+      name: 'Purple',
+      category: 'Full Hair',
       price: 200,
-      description: "A cool, muted blonde shade for a sophisticated and modern vibe.",
-      image: require ('../assets/Hair Color/Ash Blonde.webp'),
+      description: "Bold and playful purple for a unique and creative style.",
+      image: require ('../assets/Hair Color/Purple.webp'),
+    },
+
+// HIGHLIGHT CATEGORY
+    {
+      id: 1,
+      name: 'Money Piece',
+      category: 'Highlight',
+      price: 200,
+      description: "Face-framing highlights that brighten and enhance your look.",
+      image: require ('../assets/Hair Color/Money Piece Highlights.webp'),
     },
     {
+      id: 2,
+      name: 'Copper',
+      category: 'Highlight',
+      price: 200,
+      description: "Vibrant copper streaks that add warmth and dimension.",
+      image: require ('../assets/Hair Color/Copper Highlights.webp'),
+    },
+     {
       id: 3,
       name: 'Blue',
+      category: 'Highlight',
       price: 200,
       description: "Bold and vibrant blue for a standout, creative statement.",
       image: require ('../assets/Hair Color/Blue Hair.webp'),
     },
+  
+   // BALAYAGE CATEGORY 
+    {
+      id: 1,
+      name: 'Ash Blonde',
+      category: 'Balayage',
+      price: 499,
+      description: "A cool, muted blonde shade for a sophisticated and modern vibe.",
+      image: require ('../assets/Hair Color/Ash Blonde.webp'),
+    },
     {
       id: 4,
       name: 'Burgundy',
+      category: 'Balayage',
       price: 200,
       description: "A deep red wine shade for a rich, elegant finish.",
       image: require ('../assets/Hair Color/Burgundy Hair.webp'),
@@ -361,6 +409,7 @@ export const services = [
     {
       id: 5,
       name: 'Cherry Red',
+      category: 'Balayage',
       price: 200,
       description: "Bright, eye-catching red with a playful and daring appeal.",
       image: require ('../assets/Hair Color/Cherry Red Hair.webp'),
@@ -368,38 +417,12 @@ export const services = [
     {
       id: 6,
       name: 'Chestnut Brown',
+      category: 'Balayage',
       price: 200,
       description: "A warm brown shade with subtle reddish undertones.",
       image: require ('../assets/Hair Color/Chestnut Brown.webp'),
     },
-    {
-      id: 7,
-      name: 'Copper Highlights',
-      price: 200,
-      description: "Vibrant copper streaks that add warmth and dimension.",
-      image: require ('../assets/Hair Color/Copper Highlights.webp'),
-    },
-    {
-      id: 8,
-      name: 'Inky Grey',
-      price: 200,
-      description: "A deep grey shade with a sleek and mysterious allure.",
-      image: require ('../assets/Hair Color/Inky Grey.webp'),
-    },
-    {
-      id: 9,
-      name: 'Money Piece Highlights',
-      price: 200,
-      description: "Face-framing highlights that brighten and enhance your look.",
-      image: require ('../assets/Hair Color/Money Piece Highlights.webp'),
-    },
-    {
-      id: 10,
-      name: 'Purple',
-      price: 200,
-      description: "Bold and playful purple for a unique and creative style.",
-      image: require ('../assets/Hair Color/Purple.webp'),
-    },
+    
   ],
 },
 
@@ -536,7 +559,7 @@ export const services = [
     ],
   },
 
- {
+{
   id: 6,
   name: 'Foot Spa',
   styles: [
@@ -550,6 +573,20 @@ export const services = [
         require('../assets/Foot Spa/Manicure.webp'),
         require('../assets/Foot Spa/Pedicure.webp'),
       ],
+    },
+    {
+      id: 2,
+      name: 'Manicure',
+      price: 100,
+      description: "Professional nail cleaning and shaping for a neat look.",
+      image: require('../assets/Foot Spa/Manicure.webp'),
+    },
+    {
+      id: 3,
+      name: 'Pedicure',
+      price: 100,
+      description: "Thorough foot cleaning and nail care for healthy feet.",
+      image: require('../assets/Foot Spa/Pedicure.webp'),
     },
   ],
 }
